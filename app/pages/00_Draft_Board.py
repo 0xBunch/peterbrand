@@ -6,7 +6,7 @@ from pathlib import Path
 # Add parent to path for imports (now 2 levels up from pages/)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.theme import inject_theme, render_stats_bar, render_sidebar_brand
+from app.theme import inject_theme, render_stats_bar
 from app.config import (
     KEEPERS, BUDGET_STRATEGY, AVAILABLE_BUDGET, SALARY_CAP,
     KEEPER_TOTAL, OPPONENTS, ROSTER_SLOTS, NUM_TEAMS
@@ -110,11 +110,8 @@ def calculate_round():
 
 
 def render_sidebar():
-    """Render the sidebar with BATCAVE branding, filters, roster, and needs."""
+    """Render the sidebar with filters, roster, and needs."""
     with st.sidebar:
-        # BATCAVE branding at top
-        render_sidebar_brand()
-
         # Position filter
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-title">POSITION FILTER</div>', unsafe_allow_html=True)

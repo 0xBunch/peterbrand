@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.theme import inject_theme, render_sidebar_brand, COLORS
+from app.theme import inject_theme, COLORS
 from app.config import (
     BUDGET_STRATEGY, AVAILABLE_BUDGET, FAAB_RESERVE_TARGET, KEEPERS
 )
@@ -131,12 +131,6 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
 
 
 def main():
-    # Sidebar branding
-    with st.sidebar:
-        render_sidebar_brand()
-        st.markdown("---")
-        st.caption("Budget allocation and spending tracker")
-
     st.title("💵 Budget Strategy")
     st.markdown("Position-by-position spending plan and deployment tracking.")
 

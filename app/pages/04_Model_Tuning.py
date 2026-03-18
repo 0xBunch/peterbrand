@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data.database import get_connection
 from model.ab_score import ABScoreCalculator, calculate_auction_value, calculate_bid_range
 from app.config import DEFAULT_WEIGHTS
-from app.theme import inject_theme, render_sidebar_brand
+from app.theme import inject_theme
 
 # Inject unified theme (page config handled by main.py navigation)
 inject_theme()
@@ -154,12 +154,6 @@ def get_top_players_preview(weights: dict, limit: int = 10):
 
 
 def main():
-    # Sidebar branding
-    with st.sidebar:
-        render_sidebar_brand()
-        st.markdown("---")
-        st.caption("Adjust model weights and recalculate scores")
-
     st.title("⚙️ Model Tuning")
     st.markdown("Adjust AB Score weights to prioritize different player attributes.")
 

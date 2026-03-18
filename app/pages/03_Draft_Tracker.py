@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from data.database import get_connection, record_draft_pick, get_team_status, init_league_teams
 from app.config import OPPONENTS, AVAILABLE_BUDGET, KEEPERS
-from app.theme import inject_theme, render_sidebar_brand
+from app.theme import inject_theme
 
 # Inject unified theme (page config handled by main.py navigation)
 inject_theme()
@@ -106,12 +106,6 @@ def get_best_available(position: str = None, limit: int = 10):
 
 
 def main():
-    # Sidebar branding
-    with st.sidebar:
-        render_sidebar_brand()
-        st.markdown("---")
-        st.caption("Record picks and track value in real-time")
-
     st.title("🎯 Live Draft Tracker")
     st.markdown("Record picks in real-time and track value.")
 

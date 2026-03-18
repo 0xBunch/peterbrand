@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from data.database import get_connection
 from app.config import BUDGET_STRATEGY, POSITIONAL_SCARCITY
-from app.theme import inject_theme, render_sidebar_brand
+from app.theme import inject_theme
 
 # Inject unified theme (page config handled by main.py navigation)
 inject_theme()
@@ -102,12 +102,6 @@ def render_player_card(player, position: str, is_pitcher: bool = False):
 
 
 def main():
-    # Sidebar branding
-    with st.sidebar:
-        render_sidebar_brand()
-        st.markdown("---")
-        st.caption("Browse players by position and tier")
-
     st.title("📋 Position Tiers")
     st.markdown("Browse players by position. Tier 1 = Elite, Tier 4 = Replacement level.")
 

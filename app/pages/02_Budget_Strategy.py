@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.theme import inject_theme, COLORS
+from app.theme import inject_theme
 from app.config import (
     BUDGET_STRATEGY, AVAILABLE_BUDGET, FAAB_RESERVE_TARGET, KEEPERS
 )
@@ -43,7 +43,7 @@ def get_draft_status():
 
 
 def render_position_budget(position: str, budget_info: dict, spent_info: dict):
-    """Render budget card for a position."""
+    """Render budget card for a position using native Streamlit components."""
     needed = budget_info['needed']
     target = budget_info['target']
     min_budget = budget_info['min']
@@ -57,77 +57,33 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
     remaining = target - spent
     slots_remaining = needed - players_drafted
 
-    # Status color using theme colors
+    # Status
     if needed == 0:
-        status_color = COLORS['positive']
         status_text = 'KEEPER'
     elif slots_remaining == 0:
-        status_color = COLORS['positive']
         status_text = 'FILLED'
     elif spent > max_budget:
-        status_color = COLORS['negative']
         status_text = 'OVER'
     elif spent > target:
-        status_color = COLORS['warning']
         status_text = 'HIGH'
     else:
-        status_color = COLORS['info']
         status_text = 'OK'
 
     # Progress percentage
-    progress = min(100, (spent / target * 100)) if target > 0 else 0
+    progress = min(100, int((spent / target * 100))) if target > 0 else 0
 
-    st.markdown(f"""
-    <div style="
-        background: {COLORS['panel']};
-        border-radius: 4px;
-        padding: 16px;
-        margin: 8px 0;
-        border-left: 4px solid {status_color};
-    ">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span style="font-size: 1.5em; font-weight: bold; color: {COLORS['text']};">{position}</span>
-                <span style="
-                    background: {status_color};
-                    color: {COLORS['bg']};
-                    padding: 2px 8px;
-                    border-radius: 2px;
-                    font-size: 0.7em;
-                    margin-left: 8px;
-                    font-weight: 600;
-                ">{status_text}</span>
-            </div>
-            <div style="text-align: right;">
-                <span style="font-size: 1.3em; color: {status_color};">${spent}</span>
-                <span style="color: {COLORS['text_muted']};"> / ${target}</span>
-            </div>
-        </div>
+    # Use native Streamlit components
+    with st.container(border=True):
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            st.markdown(f"**{position}** `{status_text}`")
+        with col2:
+            st.markdown(f"**${spent}** / ${target}")
 
-        <div style="margin-top: 8px; background: {COLORS['border']}; border-radius: 2px; height: 6px;">
-            <div style="
-                background: {status_color};
-                width: {progress}%;
-                height: 100%;
-                border-radius: 2px;
-            "></div>
-        </div>
+        st.progress(progress / 100)
 
-        <div style="margin-top: 12px; display: flex; justify-content: space-between; color: {COLORS['text_muted']}; font-size: 0.8em;">
-            <div>
-                <strong>Need:</strong> {slots_remaining} player{'s' if slots_remaining != 1 else ''}
-                <span style="margin-left: 16px;"><strong>Range:</strong> ${min_budget}-${max_budget}</span>
-            </div>
-            <div>
-                <strong>Remaining:</strong> ${remaining}
-            </div>
-        </div>
-
-        <div style="margin-top: 8px; color: {COLORS['text_dim']}; font-size: 0.85em;">
-            💡 {strategy}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.caption(f"Need: {slots_remaining} | Range: ${min_budget}-${max_budget} | Remaining: ${remaining}")
+        st.caption(f"💡 {strategy}")
 
 
 def main():

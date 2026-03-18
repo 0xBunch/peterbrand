@@ -244,6 +244,29 @@ def get_scarcity_summary() -> dict:
     return summary
 
 
+def get_scarcity_multiplier(position: str) -> float:
+    """Get a scarcity multiplier for a position based on remaining supply.
+
+    The multiplier increases as supply decreases relative to demand.
+
+    Returns:
+        float multiplier (1.0 = normal, 1.5 = 50% premium, etc.)
+    """
+    urgency = calculate_position_urgency(position)
+
+    # Map urgency (0-100) to multiplier (1.0 - 1.5)
+    # 0 urgency = 1.0x, 100 urgency = 1.5x
+    multiplier = 1.0 + (urgency['urgency'] / 200)
+
+    return multiplier
+
+
+def get_all_scarcity_multipliers() -> dict:
+    """Get scarcity multipliers for all positions."""
+    positions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'DH', 'SP', 'RP']
+    return {pos: get_scarcity_multiplier(pos) for pos in positions}
+
+
 if __name__ == "__main__":
     print("Scarcity Analyzer")
     print("=" * 60)

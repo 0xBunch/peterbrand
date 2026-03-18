@@ -1,4 +1,4 @@
-"""Model Tuning - Adjust AB Score weights and recalculate values."""
+"""BATCAVE - Model Tuning Page"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -8,8 +8,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data.database import get_connection
 from model.ab_score import ABScoreCalculator, calculate_auction_value, calculate_bid_range
 from app.config import DEFAULT_WEIGHTS
+from app.theme import inject_theme, render_sidebar_brand
 
-st.set_page_config(page_title="Model Tuning", page_icon="⚙️", layout="wide")
+st.set_page_config(page_title="BATCAVE - Tuning", page_icon="⚙️", layout="wide")
+
+# Inject unified theme
+inject_theme()
 
 
 def recalculate_all_scores(weights: dict):
@@ -152,6 +156,12 @@ def get_top_players_preview(weights: dict, limit: int = 10):
 
 
 def main():
+    # Sidebar branding
+    with st.sidebar:
+        render_sidebar_brand()
+        st.markdown("---")
+        st.caption("Adjust model weights and recalculate scores")
+
     st.title("⚙️ Model Tuning")
     st.markdown("Adjust AB Score weights to prioritize different player attributes.")
 

@@ -1,4 +1,4 @@
-"""Austin Bats Draft Portal - Bloomberg Terminal Style Dashboard"""
+"""BATCAVE - Austin Bats Draft Command Center"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -6,338 +6,30 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.theme import inject_theme
+from app.theme import inject_theme, render_batcave_header, render_sidebar_brand
 from app.config import (
     KEEPERS, BUDGET_STRATEGY, AVAILABLE_BUDGET, SALARY_CAP,
     KEEPER_TOTAL, OPPONENTS, ROSTER_SLOTS, NUM_TEAMS
 )
 from data.database import (
     get_connection, get_undrafted_players, record_draft_pick,
-    init_league_teams, add_to_queue, remove_from_queue, get_queue,
-    clear_drafted_from_queue
+    init_league_teams, add_to_queue, get_queue, clear_drafted_from_queue
 )
-from model.scarcity import get_scarcity_alerts, calculate_position_urgency
+from model.scarcity import get_scarcity_alerts
+from model.inflation import calculate_inflation
+from app.components.player_detail import render_player_detail_panel
+from app.components.bid_check import render_bid_check
 
 # Page config - must be first Streamlit command
 st.set_page_config(
-    page_title="Austin Bats",
-    page_icon="",
+    page_title="BATCAVE",
+    page_icon="🦇",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Inject theme
+# Inject unified theme
 inject_theme()
-
-# Bloomberg-style CSS overrides for extreme density
-st.markdown("""
-<style>
-    /* Ultra-dense Bloomberg aesthetic */
-    .stApp {
-        background: #0a0e14 !important;
-    }
-
-    /* Header bar */
-    .header-bar {
-        background: linear-gradient(90deg, #0a1628 0%, #132238 100%);
-        border-bottom: 1px solid #1e3a5f;
-        padding: 8px 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-family: 'JetBrains Mono', monospace;
-        margin: -1rem -1rem 1rem -1rem;
-    }
-
-    .header-brand {
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 1.8rem;
-        color: #f5f0e8;
-        letter-spacing: 0.1em;
-    }
-
-    .header-brand span {
-        color: #d4a746;
-        font-size: 0.9rem;
-        margin-left: 8px;
-    }
-
-    .header-stats {
-        display: flex;
-        gap: 24px;
-        font-size: 0.85rem;
-    }
-
-    .header-stat {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .header-stat-label {
-        color: #6b7280;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .header-stat-value {
-        color: #4ade80;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .header-stat-value.warning {
-        color: #fbbf24;
-    }
-
-    /* Dense data table */
-    .player-row {
-        display: grid;
-        grid-template-columns: 2fr 0.5fr 0.7fr 0.7fr 0.7fr 0.6fr 0.8fr 0.6fr;
-        gap: 4px;
-        padding: 6px 8px;
-        border-bottom: 1px solid #1e2d3d;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.8rem;
-        align-items: center;
-        cursor: pointer;
-        transition: background 0.1s;
-    }
-
-    .player-row:hover {
-        background: #132238;
-    }
-
-    .player-row.header {
-        background: #0d1926;
-        color: #6b7280;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        cursor: default;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .player-name {
-        color: #f5f0e8;
-        font-weight: 500;
-    }
-
-    .player-team {
-        color: #6b7280;
-        font-size: 0.7rem;
-    }
-
-    .value-positive {
-        color: #4ade80;
-        font-weight: 600;
-    }
-
-    .value-negative {
-        color: #f87171;
-        font-weight: 600;
-    }
-
-    .value-neutral {
-        color: #9ca3af;
-    }
-
-    .tier-badge {
-        display: inline-block;
-        padding: 1px 4px;
-        font-size: 0.65rem;
-        border-radius: 2px;
-        font-weight: 600;
-    }
-
-    .tier-1 { background: #d4a746; color: #0a0e14; }
-    .tier-2 { background: #8a9ba8; color: #0a0e14; }
-    .tier-3 { background: #b87333; color: #0a0e14; }
-    .tier-4 { background: #4a5568; color: #f5f0e8; }
-
-    /* Sidebar density */
-    [data-testid="stSidebar"] {
-        background: #0d1117 !important;
-        padding-top: 0;
-    }
-
-    [data-testid="stSidebar"] .block-container {
-        padding-top: 1rem;
-    }
-
-    .sidebar-section {
-        background: #0a1628;
-        border: 1px solid #1e3a5f;
-        border-radius: 4px;
-        padding: 10px;
-        margin-bottom: 12px;
-    }
-
-    .sidebar-title {
-        color: #d4a746;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 0.9rem;
-        letter-spacing: 0.1em;
-        margin-bottom: 8px;
-        padding-bottom: 4px;
-        border-bottom: 1px solid #1e3a5f;
-    }
-
-    .roster-slot {
-        display: flex;
-        justify-content: space-between;
-        padding: 4px 0;
-        font-size: 0.75rem;
-        font-family: 'JetBrains Mono', monospace;
-        border-bottom: 1px solid #0d1926;
-    }
-
-    .roster-slot-pos {
-        color: #6b7280;
-        width: 24px;
-    }
-
-    .roster-slot-name {
-        color: #f5f0e8;
-        flex-grow: 1;
-        padding-left: 8px;
-    }
-
-    .roster-slot-empty {
-        color: #4a5568;
-        font-style: italic;
-    }
-
-    .roster-slot-salary {
-        color: #4ade80;
-    }
-
-    /* Draft log */
-    .draft-log {
-        background: #0a1628;
-        border: 1px solid #1e3a5f;
-        border-radius: 4px;
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .draft-pick {
-        display: grid;
-        grid-template-columns: 0.3fr 1.5fr 1fr 0.5fr;
-        gap: 4px;
-        padding: 4px 8px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        border-bottom: 1px solid #0d1926;
-    }
-
-    .pick-num {
-        color: #6b7280;
-    }
-
-    .pick-player {
-        color: #f5f0e8;
-    }
-
-    .pick-team {
-        color: #9ca3af;
-    }
-
-    .pick-salary {
-        color: #4ade80;
-        text-align: right;
-    }
-
-    /* AI Panel */
-    .ai-panel {
-        background: #0a1628;
-        border: 1px solid #1e3a5f;
-        border-radius: 4px;
-        padding: 12px;
-    }
-
-    .ai-header {
-        color: #d4a746;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 1rem;
-        letter-spacing: 0.1em;
-        margin-bottom: 8px;
-    }
-
-    .ai-response {
-        color: #9ca3af;
-        font-size: 0.8rem;
-        line-height: 1.4;
-        font-family: 'IBM Plex Sans', sans-serif;
-    }
-
-    /* Position filter buttons */
-    .pos-filter {
-        display: inline-block;
-        padding: 4px 8px;
-        margin: 2px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        background: #132238;
-        border: 1px solid #1e3a5f;
-        border-radius: 2px;
-        color: #9ca3af;
-        cursor: pointer;
-        transition: all 0.1s;
-    }
-
-    .pos-filter:hover {
-        border-color: #d4a746;
-        color: #f5f0e8;
-    }
-
-    .pos-filter.active {
-        background: #d4a746;
-        color: #0a0e14;
-        border-color: #d4a746;
-    }
-
-    /* Reduce default padding */
-    .block-container {
-        padding: 1rem 1rem 1rem 1rem !important;
-        max-width: none !important;
-    }
-
-    /* Hide streamlit branding */
-    #MainMenu, footer, header {visibility: hidden;}
-    .stDeployButton {display: none;}
-
-    /* Compact expanders */
-    .streamlit-expanderHeader {
-        font-size: 0.85rem !important;
-        padding: 8px 12px !important;
-        background: #0a1628 !important;
-    }
-
-    /* Needs indicator */
-    .need-badge {
-        display: inline-block;
-        background: #c41e3a;
-        color: #f5f0e8;
-        padding: 2px 6px;
-        border-radius: 2px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .filled-badge {
-        display: inline-block;
-        background: #2d5016;
-        color: #f5f0e8;
-        padding: 2px 6px;
-        border-radius: 2px;
-        font-size: 0.7rem;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 
 def init_session_state():
@@ -377,6 +69,8 @@ def init_session_state():
         st.session_state.ai_messages = []
     if 'show_draft_log' not in st.session_state:
         st.session_state.show_draft_log = True
+    if 'selected_player' not in st.session_state:
+        st.session_state.selected_player = None
 
 
 def get_pick_count():
@@ -420,47 +114,15 @@ def get_my_spent():
 def calculate_round():
     """Estimate current round based on pick count."""
     pick_count = get_pick_count()
-    # Rough estimate: picks / teams
     return (pick_count // NUM_TEAMS) + 1
 
 
-def render_header():
-    """Render the Bloomberg-style header bar."""
-    spent = get_my_spent()
-    remaining = SALARY_CAP - spent
-    current_round = calculate_round()
-    pick_count = get_pick_count()
-
-    st.markdown(f"""
-    <div class="header-bar">
-        <div>
-            <span class="header-brand">AUSTIN BATS <span>powered by Peter Brand</span></span>
-        </div>
-        <div class="header-stats">
-            <div class="header-stat">
-                <span class="header-stat-label">Budget</span>
-                <span class="header-stat-value {'warning' if remaining < 50 else ''}">${remaining}</span>
-            </div>
-            <div class="header-stat">
-                <span class="header-stat-label">Spent</span>
-                <span class="header-stat-value">${spent}</span>
-            </div>
-            <div class="header-stat">
-                <span class="header-stat-label">Round</span>
-                <span class="header-stat-value">{current_round}</span>
-            </div>
-            <div class="header-stat">
-                <span class="header-stat-label">Picks</span>
-                <span class="header-stat-value">{pick_count}</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
 def render_sidebar():
-    """Render the sidebar with filters, roster, and needs."""
+    """Render the sidebar with BATCAVE branding, filters, roster, and needs."""
     with st.sidebar:
+        # BATCAVE branding at top
+        render_sidebar_brand()
+
         # Position filter
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-title">POSITION FILTER</div>', unsafe_allow_html=True)
@@ -646,8 +308,8 @@ def render_player_table():
             # Tier badge
             tier_class = f"tier-{tier}" if tier in [1, 2, 3, 4] else "tier-4"
 
-            # Create unique key for each player - 3 columns: data, draft btn, queue btn
-            col1, col2, col3 = st.columns([9, 1, 1])
+            # Create unique key for each player - 4 columns: data, view, draft, queue
+            col1, col2, col3, col4 = st.columns([8, 1, 1, 1])
 
             with col1:
                 st.markdown(f"""
@@ -667,11 +329,16 @@ def render_player_table():
                 """, unsafe_allow_html=True)
 
             with col2:
+                if st.button("👁", key=f"view_{player_id}", help=f"View {name} details"):
+                    st.session_state.selected_player = player_id
+                    st.session_state.selected_player_data = player
+
+            with col3:
                 if st.button("D", key=f"draft_{player_id}", help=f"Draft {name}"):
                     st.session_state.drafting_player = player
                     st.session_state.show_draft_modal = True
 
-            with col3:
+            with col4:
                 if st.button("+Q", key=f"queue_{player_id}", help=f"Add {name} to queue"):
                     add_to_queue(player_id, max_bid=max_bid)
                     st.rerun()
@@ -682,15 +349,37 @@ def render_draft_modal():
     if st.session_state.get('show_draft_modal') and st.session_state.get('drafting_player'):
         player = st.session_state.drafting_player
 
-        with st.expander(f"DRAFT: {player['name']}", expanded=True):
-            col1, col2, col3 = st.columns([2, 1, 1])
+        with st.expander(f"🦇 DRAFT: {player['name']}", expanded=True):
+            # Get budget info for bid check
+            spent = get_my_spent()
+            budget_remaining = SALARY_CAP - spent
 
-            with col1:
+            # Check if position is needed
+            pos = player.get('primary_position', 'DH')
+            position_needed = BUDGET_STRATEGY.get(pos, {}).get('needed', 0) > 0
+
+            # Two column layout: bid check + input
+            col_check, col_input = st.columns([2, 1])
+
+            with col_check:
+                bid_target = player.get('bid_target') or 1
+
+                # Get salary input value (use session state if available)
+                current_bid = st.session_state.get('draft_salary', bid_target)
+
+                # Render bid check
+                render_bid_check(
+                    player=player,
+                    current_bid=current_bid,
+                    budget_remaining=budget_remaining,
+                    position_needed=position_needed,
+                    show_ai=True
+                )
+
+            with col_input:
                 teams = ['Austin Bats'] + list(OPPONENTS.keys())
                 team = st.selectbox("Team", teams, key="draft_team")
 
-            with col2:
-                bid_target = player.get('bid_target') or 1
                 salary = st.number_input(
                     "Salary",
                     min_value=1,
@@ -699,37 +388,39 @@ def render_draft_modal():
                     key="draft_salary"
                 )
 
-            with col3:
-                st.write("")  # Spacer
-                st.write("")
-                if st.button("CONFIRM", type="primary", key="confirm_draft"):
-                    record_draft_pick(player['id'], team, salary, is_keeper=False)
+                st.markdown("---")
 
-                    # Update local roster if it's our pick
-                    if team == 'Austin Bats':
-                        pos = player.get('primary_position', 'DH')
-                        if pos not in st.session_state.my_roster:
-                            st.session_state.my_roster[pos] = []
-                        st.session_state.my_roster[pos].append({
-                            'name': player['name'],
-                            'salary': salary,
-                            'team': player.get('mlb_team', '???'),
-                            'is_keeper': False
-                        })
+                col_confirm, col_cancel = st.columns(2)
+                with col_confirm:
+                    if st.button("✓ CONFIRM", type="primary", key="confirm_draft", use_container_width=True):
+                        record_draft_pick(player['id'], team, salary, is_keeper=False)
 
-                    st.session_state.show_draft_modal = False
-                    st.session_state.drafting_player = None
-                    st.rerun()
+                        # Update local roster if it's our pick
+                        if team == 'Austin Bats':
+                            if pos not in st.session_state.my_roster:
+                                st.session_state.my_roster[pos] = []
+                            st.session_state.my_roster[pos].append({
+                                'name': player['name'],
+                                'salary': salary,
+                                'team': player.get('mlb_team', '???'),
+                                'is_keeper': False
+                            })
 
-                if st.button("Cancel", key="cancel_draft"):
-                    st.session_state.show_draft_modal = False
-                    st.session_state.drafting_player = None
-                    st.rerun()
+                        st.session_state.show_draft_modal = False
+                        st.session_state.drafting_player = None
+                        st.toast(f"✓ {player['name']} drafted by {team} for ${salary}")
+                        st.rerun()
+
+                with col_cancel:
+                    if st.button("✗ Cancel", key="cancel_draft", use_container_width=True):
+                        st.session_state.show_draft_modal = False
+                        st.session_state.drafting_player = None
+                        st.rerun()
 
 
 def render_draft_log():
     """Render the collapsible draft log."""
-    with st.expander("DRAFT LOG", expanded=st.session_state.show_draft_log):
+    with st.expander("📋 DRAFT LOG", expanded=st.session_state.show_draft_log):
         recent = get_recent_picks(15)
 
         if recent:
@@ -748,12 +439,42 @@ def render_draft_log():
                 """, unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
         else:
-            st.info("No picks recorded yet. Click a player row to record a draft pick.")
+            st.info("No picks recorded yet. Click D on a player row to record a draft pick.")
+
+
+def get_ai_context() -> dict:
+    """Build context dict for AI from current draft state."""
+    spent = get_my_spent()
+    remaining = SALARY_CAP - spent
+
+    # Get position needs
+    needs = []
+    for pos, strategy in BUDGET_STRATEGY.items():
+        if strategy['needed'] > 0:
+            needs.append(pos)
+
+    # Get current roster
+    roster = []
+    for pos, players in st.session_state.my_roster.items():
+        for p in players:
+            roster.append({
+                'name': p['name'],
+                'position': pos,
+                'salary': p['salary']
+            })
+
+    return {
+        'budget': remaining,
+        'needs': needs,
+        'roster': roster,
+        'round': calculate_round(),
+        'league_info': f"12-team H2H points league, {SALARY_CAP} budget"
+    }
 
 
 def render_ai_panel():
     """Render the AI analyst chat panel."""
-    with st.expander("AI ANALYST", expanded=False):
+    with st.expander("🤖 AI ANALYST", expanded=False):
         st.markdown('<div class="ai-panel">', unsafe_allow_html=True)
 
         # Display previous messages
@@ -771,14 +492,20 @@ def render_ai_panel():
             "Ask about draft strategy, player comparisons, or value picks...",
             key="ai_input",
             label_visibility="collapsed",
-            placeholder="e.g., Who's the best 3B value right now?"
+            placeholder="e.g., Should I bid $25 on Soto?"
         )
 
         if user_input:
             st.session_state.ai_messages.append({'role': 'user', 'content': user_input})
 
-            # Placeholder response - integrate with ai_assistant.py when available
-            response = f"[AI module not loaded] Analyzing: '{user_input}' - Check position tiers and PB scores for value plays."
+            # Try to get AI response
+            try:
+                from app.ai_assistant import get_draft_advice
+                context = get_ai_context()
+                response = get_draft_advice(context, user_input)
+            except Exception as e:
+                response = f"[AI Offline] {str(e)[:100]}"
+
             st.session_state.ai_messages.append({'role': 'assistant', 'content': response})
             st.rerun()
 
@@ -786,11 +513,26 @@ def render_ai_panel():
 
 
 def main():
-    """Main dashboard entry point."""
+    """Main BATCAVE dashboard entry point."""
     init_session_state()
 
-    # Render header
-    render_header()
+    # Calculate current inflation
+    try:
+        inflation = calculate_inflation()
+    except Exception:
+        inflation = 0
+
+    # Render BATCAVE header
+    spent = get_my_spent()
+    current_round = calculate_round()
+    pick_count = get_pick_count()
+    render_batcave_header(
+        budget=SALARY_CAP,
+        spent=spent,
+        round_num=current_round,
+        pick_count=pick_count,
+        inflation=inflation
+    )
 
     # Render sidebar
     render_sidebar()
@@ -801,8 +543,23 @@ def main():
     # Draft modal (if active)
     render_draft_modal()
 
-    # Player table
-    render_player_table()
+    # Check if player detail panel should be shown
+    if st.session_state.get('selected_player'):
+        # Two-column layout: player table + detail panel
+        col_table, col_detail = st.columns([2, 1])
+
+        with col_table:
+            render_player_table()
+
+        with col_detail:
+            st.markdown("### Player Details")
+            if st.button("✕ Close", key="close_detail"):
+                st.session_state.selected_player = None
+                st.rerun()
+            render_player_detail_panel(st.session_state.selected_player)
+    else:
+        # Full-width player table
+        render_player_table()
 
     st.markdown("---")
 

@@ -1,4 +1,4 @@
-"""Budget Strategy - Position-by-position spending plan."""
+"""BATCAVE - Budget Strategy Page"""
 import streamlit as st
 import pandas as pd
 import sys
@@ -6,35 +6,42 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data.database import get_connection
+from app.theme import inject_theme, render_sidebar_brand, COLORS
 from app.config import (
-    BUDGET_STRATEGY, SALARY_CAP, KEEPER_TOTAL, AVAILABLE_BUDGET,
-    FAAB_RESERVE_TARGET, KEEPERS
+    BUDGET_STRATEGY, AVAILABLE_BUDGET, FAAB_RESERVE_TARGET, KEEPERS
 )
 
-st.set_page_config(page_title="Budget Strategy", page_icon="💵", layout="wide")
+st.set_page_config(page_title="BATCAVE - Budget", page_icon="💵", layout="wide")
+
+# Inject unified theme
+inject_theme()
 
 
 def get_draft_status():
     """Get current draft spending by position."""
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        from data.database import get_connection
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT
-            p.primary_position,
-            COUNT(*) as players,
-            SUM(dp.salary) as spent
-        FROM draft_picks dp
-        JOIN players p ON dp.player_id = p.id
-        WHERE dp.team = 'Austin Bats'
-        GROUP BY p.primary_position
-    """)
+        cursor.execute("""
+            SELECT
+                p.primary_position,
+                COUNT(*) as players,
+                SUM(dp.salary) as spent
+            FROM draft_picks dp
+            JOIN players p ON dp.player_id = p.id
+            WHERE dp.team = 'Austin Bats'
+            GROUP BY p.primary_position
+        """)
 
-    rows = cursor.fetchall()
-    conn.close()
+        rows = cursor.fetchall()
+        conn.close()
 
-    return {row[0]: {'players': row[1], 'spent': row[2]} for row in rows}
+        return {row[0]: {'players': row[1], 'spent': row[2]} for row in rows}
+    except Exception as e:
+        st.warning(f"Could not load draft data: {e}")
+        return {}
 
 
 def render_position_budget(position: str, budget_info: dict, spent_info: dict):
@@ -52,21 +59,21 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
     remaining = target - spent
     slots_remaining = needed - players_drafted
 
-    # Status color
+    # Status color using theme colors
     if needed == 0:
-        status_color = '#27ae60'  # Green - filled by keeper
+        status_color = COLORS['positive']
         status_text = 'KEEPER'
     elif slots_remaining == 0:
-        status_color = '#27ae60'  # Green - filled
+        status_color = COLORS['positive']
         status_text = 'FILLED'
     elif spent > max_budget:
-        status_color = '#e74c3c'  # Red - overspent
+        status_color = COLORS['negative']
         status_text = 'OVER'
     elif spent > target:
-        status_color = '#f39c12'  # Orange - warning
+        status_color = COLORS['warning']
         status_text = 'HIGH'
     else:
-        status_color = '#3498db'  # Blue - on track
+        status_color = COLORS['info']
         status_text = 'OK'
 
     # Progress percentage
@@ -74,40 +81,41 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
 
     st.markdown(f"""
     <div style="
-        background: #1a1a2e;
-        border-radius: 8px;
+        background: {COLORS['panel']};
+        border-radius: 4px;
         padding: 16px;
         margin: 8px 0;
         border-left: 4px solid {status_color};
     ">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <span style="font-size: 1.5em; font-weight: bold;">{position}</span>
+                <span style="font-size: 1.5em; font-weight: bold; color: {COLORS['text']};">{position}</span>
                 <span style="
                     background: {status_color};
-                    color: white;
+                    color: {COLORS['bg']};
                     padding: 2px 8px;
-                    border-radius: 12px;
-                    font-size: 0.8em;
+                    border-radius: 2px;
+                    font-size: 0.7em;
                     margin-left: 8px;
+                    font-weight: 600;
                 ">{status_text}</span>
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 1.3em; color: {status_color};">${spent}</span>
-                <span style="color: #888;"> / ${target}</span>
+                <span style="color: {COLORS['text_muted']};"> / ${target}</span>
             </div>
         </div>
 
-        <div style="margin-top: 8px; background: #2d2d44; border-radius: 4px; height: 8px;">
+        <div style="margin-top: 8px; background: {COLORS['border']}; border-radius: 2px; height: 6px;">
             <div style="
                 background: {status_color};
                 width: {progress}%;
                 height: 100%;
-                border-radius: 4px;
+                border-radius: 2px;
             "></div>
         </div>
 
-        <div style="margin-top: 12px; display: flex; justify-content: space-between; color: #888;">
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; color: {COLORS['text_muted']}; font-size: 0.8em;">
             <div>
                 <strong>Need:</strong> {slots_remaining} player{'s' if slots_remaining != 1 else ''}
                 <span style="margin-left: 16px;"><strong>Range:</strong> ${min_budget}-${max_budget}</span>
@@ -117,7 +125,7 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
             </div>
         </div>
 
-        <div style="margin-top: 8px; color: #aaa; font-size: 0.9em;">
+        <div style="margin-top: 8px; color: {COLORS['text_dim']}; font-size: 0.85em;">
             💡 {strategy}
         </div>
     </div>
@@ -125,10 +133,16 @@ def render_position_budget(position: str, budget_info: dict, spent_info: dict):
 
 
 def main():
+    # Sidebar branding
+    with st.sidebar:
+        render_sidebar_brand()
+        st.markdown("---")
+        st.caption("Budget allocation and spending tracker")
+
     st.title("💵 Budget Strategy")
     st.markdown("Position-by-position spending plan and deployment tracking.")
 
-    # Summary metrics
+    # Get draft status with error handling
     spent_data = get_draft_status()
     total_spent = sum(d.get('spent', 0) or 0 for d in spent_data.values())
     total_players = sum(d.get('players', 0) or 0 for d in spent_data.values())
@@ -136,6 +150,7 @@ def main():
     remaining = AVAILABLE_BUDGET - total_spent
     target_spend = AVAILABLE_BUDGET - FAAB_RESERVE_TARGET
 
+    # Summary metrics
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:

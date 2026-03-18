@@ -1,4 +1,4 @@
-"""Position Tiers - Browse players by position and tier."""
+"""BATCAVE - Position Tiers Page"""
 import streamlit as st
 import pandas as pd
 import sys
@@ -8,8 +8,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from data.database import get_connection
 from app.config import BUDGET_STRATEGY, POSITIONAL_SCARCITY
+from app.theme import inject_theme, render_sidebar_brand
 
-st.set_page_config(page_title="Position Tiers", page_icon="📋", layout="wide")
+st.set_page_config(page_title="BATCAVE - Tiers", page_icon="📋", layout="wide")
+
+# Inject unified theme
+inject_theme()
 
 
 def get_players_by_position(position: str, tier: int = None, limit: int = 50):
@@ -100,6 +104,12 @@ def render_player_card(player, position: str, is_pitcher: bool = False):
 
 
 def main():
+    # Sidebar branding
+    with st.sidebar:
+        render_sidebar_brand()
+        st.markdown("---")
+        st.caption("Browse players by position and tier")
+
     st.title("📋 Position Tiers")
     st.markdown("Browse players by position. Tier 1 = Elite, Tier 4 = Replacement level.")
 

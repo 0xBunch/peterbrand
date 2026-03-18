@@ -66,8 +66,23 @@ def init_db():
             bid_floor INTEGER,
             bid_target INTEGER,
             bid_ceiling INTEGER,
+            max_bid INTEGER,
             FOREIGN KEY (player_id) REFERENCES players(id),
             PRIMARY KEY (player_id, position)
+        )
+    """)
+
+    # Draft queue - players queued for auction
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS draft_queue (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id INTEGER NOT NULL,
+            priority INTEGER DEFAULT 0,
+            max_bid INTEGER,
+            notes TEXT,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (player_id) REFERENCES players(id),
+            UNIQUE(player_id)
         )
     """)
 
@@ -444,6 +459,101 @@ def get_league_price(position: str, tier: int) -> dict:
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else {'avg_salary': 1, 'dollars_per_fpts': 0.1}
+
+
+def add_to_queue(player_id: int, max_bid: int = None, notes: str = None, priority: int = 0):
+    """Add a player to the draft queue."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT OR REPLACE INTO draft_queue (player_id, max_bid, notes, priority)
+        VALUES (?, ?, ?, ?)
+    """, (player_id, max_bid, notes, priority))
+    conn.commit()
+    conn.close()
+
+
+def remove_from_queue(player_id: int):
+    """Remove a player from the draft queue."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM draft_queue WHERE player_id = ?", (player_id,))
+    conn.commit()
+    conn.close()
+
+
+def get_queue() -> list[dict]:
+    """Get all players in the draft queue with their info."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT
+            dq.id, dq.player_id, dq.priority, dq.max_bid, dq.notes,
+            p.name, p.mlb_team, p.positions, p.primary_position,
+            proj.fpts,
+            pb.pb_score, pb.true_value, pb.value_gap,
+            pt.tier, pt.bid_floor, pt.bid_target, pt.bid_ceiling
+        FROM draft_queue dq
+        JOIN players p ON dq.player_id = p.id
+        LEFT JOIN projections proj ON p.id = proj.player_id
+            AND proj.season = 2026 AND proj.stat_type = 'projection'
+        LEFT JOIN pb_scores pb ON p.id = pb.player_id
+        LEFT JOIN position_tiers pt ON p.id = pt.player_id
+            AND pt.position = p.primary_position
+        LEFT JOIN draft_picks dp ON p.id = dp.player_id
+        WHERE dp.id IS NULL
+        ORDER BY dq.priority DESC, pb.pb_score DESC
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [
+        {
+            'queue_id': row[0],
+            'player_id': row[1],
+            'priority': row[2],
+            'max_bid': row[3],
+            'notes': row[4],
+            'name': row[5],
+            'team': row[6],
+            'positions': row[7],
+            'primary_position': row[8],
+            'fpts': row[9],
+            'pb_score': row[10],
+            'true_value': row[11],
+            'value_gap': row[12],
+            'tier': row[13],
+            'bid_floor': row[14],
+            'bid_target': row[15],
+            'bid_ceiling': row[16],
+        }
+        for row in rows
+    ]
+
+
+def update_queue_priority(player_id: int, priority: int):
+    """Update a player's priority in the queue."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE draft_queue SET priority = ? WHERE player_id = ?
+    """, (priority, player_id))
+    conn.commit()
+    conn.close()
+
+
+def clear_drafted_from_queue():
+    """Remove any drafted players from the queue."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        DELETE FROM draft_queue
+        WHERE player_id IN (SELECT player_id FROM draft_picks)
+    """)
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return deleted
 
 
 if __name__ == "__main__":

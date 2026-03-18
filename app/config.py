@@ -141,3 +141,20 @@ TIER_CUTOFFS = {
     "SP": [500, 400, 320],
     "RP": [350, 280, 220],
 }
+
+# Replacement level FPTS by position (last rosterable player)
+# Used for VORP calculations
+REPLACEMENT_FPTS = {
+    "C": 180,   # 10th best C
+    "1B": 280,  # 12th best 1B
+    "2B": 260,  # 12th best 2B
+    "3B": 250,  # 10th best 3B
+    "SS": 270,  # 12th best SS
+    "OF": 300,  # 30th best OF (3 slots × 10 teams)
+    "DH": 250,  # 10th best DH
+    "SP": 250,  # 50th best SP (5 slots × 10 teams)
+    "RP": 150,  # 20th best RP (2 slots × 10 teams)
+}
+
+# Talent cliff detection threshold
+CLIFF_THRESHOLD_PCT = 0.08  # 8% FPTS drop = cliff

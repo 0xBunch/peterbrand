@@ -13,8 +13,10 @@ from app.config import (
 )
 from data.database import (
     get_connection, get_undrafted_players, record_draft_pick,
-    init_league_teams
+    init_league_teams, add_to_queue, remove_from_queue, get_queue,
+    clear_drafted_from_queue
 )
+from model.scarcity import get_scarcity_alerts, calculate_position_urgency
 
 # Page config - must be first Streamlit command
 st.set_page_config(
@@ -534,6 +536,51 @@ def render_sidebar():
         st.markdown(roster_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
+        # Draft Queue Panel
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">DRAFT QUEUE</div>', unsafe_allow_html=True)
+
+        queue = get_queue()
+        clear_drafted_from_queue()  # Auto-remove drafted players
+
+        if queue:
+            queue_html = ""
+            for q in queue[:8]:  # Show top 8
+                max_bid = f"MAX ${q['max_bid']}" if q['max_bid'] else ""
+                queue_html += f"""
+                <div class="roster-slot">
+                    <span class="roster-slot-pos">{q['primary_position'] or '?'}</span>
+                    <span class="roster-slot-name">{q['name']}</span>
+                    <span class="roster-slot-salary">{max_bid}</span>
+                </div>
+                """
+            st.markdown(queue_html, unsafe_allow_html=True)
+        else:
+            st.caption("No players queued. Click +Q on player rows.")
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Scarcity Alerts Panel
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">SCARCITY ALERTS</div>', unsafe_allow_html=True)
+
+        current_round = calculate_round()
+        alerts = get_scarcity_alerts(current_round)
+
+        if alerts:
+            for alert in alerts[:4]:  # Show top 4 alerts
+                level_class = "need-badge" if alert['level'] == 'CRITICAL' else "filled-badge"
+                st.markdown(f"""
+                <div class="roster-slot">
+                    <span class="{level_class}">{alert['level']}</span>
+                    <span class="roster-slot-name">{alert['position']}: {alert['undrafted']} left</span>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.caption("No urgent scarcity alerts")
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
 
 def render_player_table():
     """Render the dense player data table."""
@@ -556,10 +603,10 @@ def render_player_table():
         <div>PLAYER</div>
         <div>POS</div>
         <div>FPTS</div>
-        <div>3YA</div>
         <div>PB</div>
         <div>TIER</div>
         <div>BID</div>
+        <div>MAX</div>
         <div>GAP</div>
     </div>
     """, unsafe_allow_html=True)
@@ -574,7 +621,6 @@ def render_player_table():
             team = player.get('mlb_team', '???')
             positions = player.get('positions', '-')
             fpts = player.get('fpts') or 0
-            fpts_3ya = player.get('fpts_3ya') or 0
             pb_score = player.get('pb_score') or 0
             tier = player.get('tier') or 4
             bid_floor = player.get('bid_floor') or 1
@@ -582,6 +628,9 @@ def render_player_table():
             bid_ceiling = player.get('bid_ceiling') or 1
             value_gap = player.get('value_gap') or 0
             player_id = player.get('id')
+
+            # Calculate max_bid if not in data
+            max_bid = player.get('max_bid') or min(int(bid_ceiling * 1.25), 50)
 
             # Value gap color
             if value_gap > 5:
@@ -597,8 +646,8 @@ def render_player_table():
             # Tier badge
             tier_class = f"tier-{tier}" if tier in [1, 2, 3, 4] else "tier-4"
 
-            # Create unique key for each player button
-            col1, col2 = st.columns([10, 1])
+            # Create unique key for each player - 3 columns: data, draft btn, queue btn
+            col1, col2, col3 = st.columns([9, 1, 1])
 
             with col1:
                 st.markdown(f"""
@@ -609,18 +658,23 @@ def render_player_table():
                     </div>
                     <div>{positions}</div>
                     <div>{fpts:.0f}</div>
-                    <div>{fpts_3ya:.0f}</div>
                     <div>{pb_score:.0f}</div>
                     <div><span class="tier-badge {tier_class}">T{tier}</span></div>
                     <div>${bid_floor}-{bid_target}-{bid_ceiling}</div>
+                    <div>${max_bid}</div>
                     <div class="{gap_class}">{gap_display}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col2:
-                if st.button("", key=f"draft_{player_id}", help=f"Draft {name}"):
+                if st.button("D", key=f"draft_{player_id}", help=f"Draft {name}"):
                     st.session_state.drafting_player = player
                     st.session_state.show_draft_modal = True
+
+            with col3:
+                if st.button("+Q", key=f"queue_{player_id}", help=f"Add {name} to queue"):
+                    add_to_queue(player_id, max_bid=max_bid)
+                    st.rerun()
 
 
 def render_draft_modal():

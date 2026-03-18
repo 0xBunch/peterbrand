@@ -510,6 +510,127 @@ def get_pb_score_summary() -> dict:
     }
 
 
+def calculate_tier(fpts: float, position: str) -> int:
+    """Determine tier based on FPTS and position-specific cutoffs."""
+    from app.config import TIER_CUTOFFS
+
+    cutoffs = TIER_CUTOFFS.get(position, [400, 300, 200])
+
+    if fpts >= cutoffs[0]:
+        return 1
+    elif fpts >= cutoffs[1]:
+        return 2
+    elif fpts >= cutoffs[2]:
+        return 3
+    else:
+        return 4
+
+
+def calculate_bid_range(true_value: float, position: str, remaining_budget: int = 254) -> dict:
+    """Calculate bid floor, target, ceiling, and max for a player.
+
+    Returns dict with floor, target, ceiling, max_bid
+    """
+    from app.config import BUDGET_STRATEGY
+
+    # Position-based multipliers
+    pos_mult = {
+        'C': 0.6, '1B': 0.9, '2B': 1.0, '3B': 1.1,
+        'SS': 1.0, 'OF': 1.0, 'DH': 0.7, 'SP': 1.0, 'RP': 0.8
+    }
+    mult = pos_mult.get(position, 1.0)
+
+    # Base target from true value
+    target = max(1, round(true_value * mult))
+
+    # Bid range
+    floor = max(1, int(target * 0.7))
+    ceiling = int(target * 1.3)
+
+    # MAX bid calculation
+    pos_budget = BUDGET_STRATEGY.get(position, {}).get('max', 50)
+    max_bid = min(
+        int(ceiling * 1.25),          # 25% above ceiling
+        int(remaining_budget * 0.4),  # Never >40% of remaining
+        pos_budget                    # Stay within position budget
+    )
+    max_bid = max(max_bid, target)  # Max should be at least target
+
+    return {
+        'floor': floor,
+        'target': target,
+        'ceiling': ceiling,
+        'max_bid': max_bid,
+    }
+
+
+def generate_all_tiers_and_bids():
+    """Generate tier assignments and bid ranges for all players.
+
+    Consolidates tier/bid generation with PB Score for single execution.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    positions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'DH', 'SP', 'RP']
+    tier_counts = {pos: {1: 0, 2: 0, 3: 0, 4: 0} for pos in positions}
+
+    # Get all players with projections and PB scores
+    cursor.execute("""
+        SELECT
+            p.id, p.name, p.positions, p.primary_position,
+            proj.fpts,
+            pb.pb_score, pb.true_value, pb.league_price, pb.value_gap
+        FROM players p
+        JOIN projections proj ON p.id = proj.player_id
+            AND proj.season = 2026 AND proj.stat_type = 'projection'
+        LEFT JOIN pb_scores pb ON p.id = pb.player_id
+        WHERE proj.fpts IS NOT NULL
+        ORDER BY proj.fpts DESC
+    """)
+
+    players = cursor.fetchall()
+
+    for player in players:
+        player_id = player[0]
+        positions_str = player[2] or 'DH'
+        primary_pos = player[3] or positions_str.split(',')[0].strip()
+        fpts = player[4] or 0
+        true_value = player[6] or (fpts * 0.055)  # Fallback estimate
+
+        # Get all positions this player is eligible for
+        player_positions = [p.strip() for p in positions_str.split(',') if p.strip()]
+        if not player_positions:
+            player_positions = [primary_pos]
+
+        # Calculate tier and bids for each eligible position
+        for pos in player_positions:
+            tier = calculate_tier(fpts, pos)
+            tier_counts.get(pos, {1: 0, 2: 0, 3: 0, 4: 0})[tier] = tier_counts.get(pos, {1: 0, 2: 0, 3: 0, 4: 0}).get(tier, 0) + 1
+
+            bids = calculate_bid_range(true_value, pos)
+
+            cursor.execute("""
+                INSERT OR REPLACE INTO position_tiers
+                (player_id, position, tier, rank_in_tier, bid_floor, bid_target, bid_ceiling, max_bid)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                player_id, pos, tier,
+                tier_counts.get(pos, {}).get(tier, 0),
+                bids['floor'], bids['target'], bids['ceiling'], bids['max_bid']
+            ))
+
+    conn.commit()
+    conn.close()
+
+    print("\nTier Generation Complete:")
+    for pos in positions:
+        counts = tier_counts.get(pos, {})
+        print(f"  {pos}: T1={counts.get(1, 0)}, T2={counts.get(2, 0)}, T3={counts.get(3, 0)}, T4={counts.get(4, 0)}")
+
+    return tier_counts
+
+
 if __name__ == "__main__":
     print("PB Score Calculator (Peter Brand Score)")
     print("=" * 60)
@@ -548,3 +669,8 @@ if __name__ == "__main__":
         print(f"  {p['name']} ({p['position']}): "
               f"${p['true_value']:.0f} true vs ${p['league_price']:.0f} expected "
               f"(+${p['value_gap']:.0f} edge)")
+
+    # Generate tiers and bid ranges
+    print("\n" + "=" * 60)
+    print("Generating Position Tiers and Bid Ranges...")
+    generate_all_tiers_and_bids()

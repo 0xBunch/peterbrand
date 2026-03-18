@@ -1,0 +1,271 @@
+Austin Bats
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+OF,Kyle Tucker OF | LAD ,46,"DH,OF",468.0,446.0
+1B,Matt Olson 1B | ATL ,42,"1B,DH",376.0,342.0
+SP,Jose Berrios SP | TOR ,30,SP,300.0,33.0
+SS,"Tim Anderson 2B,SS | LAA",2,"DH,SS",185.0,156.0
+RP,Liam Hendriks RP | MIN ,11,RP,341.0,194.0
+C,Yasmani Grandal C | PIT,10,"C,DH",91.0,31.0
+3B,Ke'Bryan Hayes 3B | CIN,10,"3B,DH",232.0,87.0
+SP,Shane Bieber SP | TOR ,39,SP,570.0,546.0
+OF,Akil Baddoo OF | MIL ,1,"DH,OF",70.0,0.0
+RP,Raisel Iglesias RP | ATL ,10,RP,232.0,106.0
+2B,Ty France 1B | SD ,5,"1B,2B,DH",346.0,243.0
+OF,Eloy Jimenez DH | TOR,13,"DH,OF",199.0,78.0
+RES,DJ LeMahieu 2B | NYY,6,"1B,2B,3B,DH",297.0,206.0
+SP,Marco Gonzales SP | SD,7,SP,292.0,24.0
+RES,Jean Segura 3B | ,3,"2B,DH",214.0,0.0
+SP,John Means SP | KC ,8,SP,15.0,15.0
+RES,Julio Rodriguez OF | SEA,12,"DH,OF",378.0,360.0
+RES,Ryan McMahon 3B | NYY ,3,"2B,3B,DH",244.0,1.0
+RES,Yusei Kikuchi SP | LAA,1,SP,170.0,13.0
+RES,Sonny Gray SP | BOS,5,SP,305.0,136.0
+RES,Michael Kopech RP | LAD ,1,RP,246.0,84.0
+RES,Zach Eflin SP | BAL ,2,SP,151.0,0.0
+RES,Steven Matz RP | TB ,2,SP,102.0,22.0
+RES,Drew Rasmussen SP | TB,2,"RP,SP",377.0,60.0
+RES,Corey Kluber SP | ,1,SP,329.0,51.0
+Redskins
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+2B,Trea Turner SS | PHI ,65,"2B,DH,SS",468.0,461.0
+OF,Aaron Judge OF | NYY,34,"DH,OF",642.0,635.0
+OF,Eddie Rosario DH | MIL,23,"DH,OF",81.0,-4.0
+SP,Clayton Kershaw SP | LAD,25,SP,418.0,354.0
+1B,Pete Alonso 1B | BAL,29,"1B,DH",484.0,478.0
+SP,Lucas Giolito SP | BOS,43,SP,311.0,152.0
+SS,"Miguel Rojas 2B,3B,SS | LAD",1,"DH,SS",203.0,0.0
+RP,Andrew Kittredge RP | BAL ,5,RP,71.0,53.0
+SP,Zach Plesac SP | LAA,8,SP,202.0,42.0
+RES,Avisail Garcia OF | MIA,4,"DH,OF",99.0,0.0
+SP,Aaron Civale SP | ATH,7,SP,183.0,4.0
+RP,Edwin Diaz RP | LAD ,6,RP,395.0,266.0
+RES,Willy Adames SS | SF ,4,"DH,SS",316.0,187.0
+RES,Luis Severino SP | ATH,7,RP,290.0,122.0
+SP,"Eric Lauer SP,RP | TOR ",2,SP,380.0,132.0
+3B,Luis Urias 2B | ATH ,4,"2B,3B,DH,SS",200.0,84.0
+C,Elias Diaz C | KC,1,"C,DH",131.0,16.0
+RES,Alex Verdugo OF | SD,2,"DH,OF",338.0,161.0
+RES,Dansby Swanson SS | CHC,2,"DH,SS",382.0,183.0
+RES,Michael Brantley LF | ,3,"DH,OF",159.0,91.0
+RES,Brandon Belt DH | TOR,6,"1B,DH",90.0,23.0
+RES,Luke Voit 1B | NYM,1,"1B,DH",200.0,-9.0
+RES,Dakota Hudson SP | LAA,2,SP,191.0,25.0
+RES,Jeimer Candelario 3B | LAA ,1,"3B,DH",156.0,30.0
+RES,Cole Irvin SP | LAD ,1,SP,345.0,103.0
+Bushwood CC
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+OF,Juan Soto OF | NYM,65,"DH,OF",445.0,446.0
+3B,Nolan Arenado 3B | ARI,23,"3B,DH",448.0,443.0
+2B,Ozzie Albies 2B | ATL ,39,"2B,DH",141.0,134.0
+SP,Trevor Bauer SP | LAD,12,SP,0.0,0.0
+OF,Kris Bryant DH | COL ,28,"3B,DH,OF",106.0,97.0
+SP,Chris Bassitt SP | BAL,19,SP,458.0,444.0
+C,Daulton Varsho OF | TOR ,10,"C,DH,OF",326.0,326.0
+SP,Charlie Morton SP | ATL,23,SP,379.0,225.0
+SP,Frankie Montas SP | NYM ,26,SP,278.0,189.0
+OF,Christian Yelich OF | MIL,19,"DH,OF",359.0,353.0
+RES,Nathan Eovaldi SP | TEX ,9,SP,246.0,156.0
+RES,Kyle Hendricks SP | LAA,9,SP,131.0,38.0
+1B,Frank Schwindel 1B | ,2,"1B,DH",117.0,55.0
+SS,J.P. Crawford SS | SEA ,1,"DH,SS",250.0,193.0
+RP,Drew Steckenrider RP | ,1,RP,7.0,0.0
+RP,Gregory Soto RP | PIT,1,RP,225.0,95.0
+RES,Austin Nola C | COL,1,"C,DH",167.0,0.0
+RES,Jacob Stallings C | BAL,1,"C,DH",107.0,0.0
+RES,Travis d'Arnaud C | LAA,1,"C,DH",244.0,54.0
+RES,James McCann C | ARI ,1,"C,DH",56.0,0.0
+RES,Brian Anderson OF | ATL,1,"3B,DH",114.0,0.0
+RES,Didi Gregorius SS | ,1,"DH,SS",80.0,0.0
+RES,Kyle Lewis DH | ARI,1,"DH,OF",15.0,0.0
+RES,Pavin Smith 1B | ARI ,1,"1B,DH,OF",108.0,0.0
+RES,Austin Hays OF | CHW,1,"DH,OF",277.0,183.0
+Sofa Kings
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+OF,Mookie Betts SS | LAD ,61,"DH,OF",493.0,484.0
+SP,Aaron Nola SP | PHI,31,SP,566.0,468.0
+1B,Jake Cronenworth 2B | SD,22,"1B,2B,DH,SS",359.0,322.0
+SS,Corey Seager SS | TEX,27,"DH,SS",381.0,375.0
+SP,Joe Musgrove SP | SD ,21,SP,491.0,321.0
+SP,Sean Manaea SP | NYM ,12,SP,309.0,120.0
+DH,Franmil Reyes DH | ,4,DH,130.0,-5.0
+RES,Jose Abreu 1B | HOU,10,"1B,DH",370.0,300.0
+RES,Jacob deGrom SP | TEX,10,SP,237.0,237.0
+RES,Luis Castillo SP | SEA,10,SP,420.0,51.0
+3B,Anthony Rendon 3B | LAA ,11,"3B,DH",86.0,85.0
+RES,Trevor Rogers SP | BAL ,12,SP,130.0,7.0
+RES,Nicky Lopez 3B | COL,5,"DH,SS",182.0,0.0
+OF,Austin Meadows OF | DET,7,"DH,OF",63.0,8.0
+RP,David Bednar RP | NYY ,1,RP,221.0,35.0
+C,Alejandro Kirk C | TOR,3,"C,DH",320.0,264.0
+RP,Emmanuel Clase RP | CLE ,3,RP,420.0,334.0
+2B,"Tommy Edman 2B,OF | LAD ",7,"2B,DH,OF",404.0,380.0
+OF,Max Kepler OF | PHI ,1,"DH,OF",223.0,44.0
+RES,Yuli Gurriel DH | SD,3,"1B,DH",281.0,29.0
+RES,Logan Gilbert SP | SEA,1,SP,469.0,279.0
+RES,"Adam Frazier 2B,OF | LAA ",1,"2B,DH",262.0,5.0
+RES,Tommy Pham OF | PIT,3,"DH,OF",262.0,134.0
+RES,Nelson Cruz DH | ,1,DH,211.0,12.0
+RES,Mitch Garver C | SEA,1,"C,DH",95.0,0.0
+RES,Myles Straw OF | TOR,1,"DH,OF",276.0,35.0
+Moneyball Dos
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+3B,Josh Donaldson 3B | ,5,"3B,DH",194.0,6.0
+DH,Bo Bichette SS | NYM,48,"DH,SS",363.0,361.0
+RES,Xander Bogaerts SS | SD,30,"DH,SS",362.0,352.0
+SP,Max Scherzer SP | TOR ,57,SP,480.0,398.0
+2B,Whit Merrifield 2B | ATL,32,"2B,DH,OF",305.0,298.0
+RES,Justin Turner 1B | CHC,14,"3B,DH",309.0,294.0
+1B,J.T. Realmuto C | PHI ,24,"1B,C,DH",378.0,326.0
+SP,Eduardo Rodriguez SP | ARI,9,SP,180.0,21.0
+OF,Ketel Marte 2B | ARI,16,"2B,DH,OF",278.0,278.0
+OF,Randy Arozarena OF | SEA ,16,"DH,OF",397.0,396.0
+OF,Teoscar Hernandez OF | LAD,14,"DH,OF",284.0,12.0
+RES,Tyler Stephenson C | CIN,2,"1B,C,DH",110.0,19.0
+RP,Aroldis Chapman RP | BOS,6,RP,116.0,61.0
+RES,Adalberto Mondesi SS | BOS,2,"3B,DH",12.0,0.0
+RES,Josh Bell 1B | MIN,8,"1B,DH",347.0,21.0
+RES,Marcus Stroman SP | NYY,4,SP,309.0,-7.0
+RES,Carson Kelly C | CHC,2,"C,DH",149.0,0.0
+RP,Justin Steele SP | CHC ,1,"RP,SP",258.0,209.0
+RES,Mike Yastrzemski OF | ATL,1,"DH,OF",253.0,221.0
+RES,Jeremy Pena SS | HOU ,1,"DH,SS",243.0,42.0
+RES,"Isiah Kiner-Falefa 3B,SS | BOS ",1,"DH,SS",270.0,0.0
+RES,Anthony Santander OF | TOR ,1,"DH,OF",366.0,33.0
+RES,Kole Calhoun 1B | CLE,1,"DH,OF",117.0,0.0
+Cardinal and Gold
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+3B,Jose Ramirez 3B | CLE ,58,"3B,DH",551.0,536.0
+OF,Starling Marte DH | KC,40,"DH,OF",342.0,342.0
+SS,Francisco Lindor SS | NYM ,26,"DH,SS",448.0,439.0
+1B,Vladimir Guerrero Jr. 1B | TOR,60,"1B,DH",442.0,432.0
+OF,Kyle Schwarber DH | PHI,12,"DH,OF",402.0,368.0
+DH,Rhys Hoskins 1B | CLE ,9,"1B,DH",322.0,162.0
+C,Willson Contreras 1B | BOS,7,"C,DH",282.0,275.0
+SP,Cal Quantrill SP | TEX,13,"RP,SP",423.0,208.0
+RES,Brandon Nimmo OF | TEX,3,"DH,OF",395.0,257.0
+SP,Jose Urquidy RP | PIT ,6,SP,370.0,288.0
+SP,Tyler Mahle SP | SF ,11,SP,257.0,148.0
+OF,Jared Walsh 1B | CHW,6,"1B,DH,OF",131.0,11.0
+RP,Jake McGee RP | ,3,RP,26.0,5.0
+RP,Scott Barlow RP | ATH ,3,RP,318.0,294.0
+SP,Lance McCullers SP | HOU,6,SP,139.0,88.0
+RES,Lourdes Gurriel OF | ARI ,1,"DH,OF",238.0,-1.0
+RES,Anthony DeSclafani RP | ARI,2,SP,1.0,7.0
+RES,Andrew Vaughn 1B | MIL,1,"1B,DH,OF",291.0,0.0
+RES,Matt Chapman 3B | SF ,2,"3B,DH",294.0,0.0
+RES,Adolis Garcia OF | PHI,1,"DH,OF",387.0,236.0
+RES,"Amed Rosario 2B,3B | NYY",2,"DH,OF,SS",354.0,31.0
+RES,Nick Pivetta SP | SD,1,SP,329.0,22.0
+RES,Edward Cabrera SP | CHC ,1,SP,183.0,58.0
+RES,Jon Gray RP | TEX ,1,SP,292.0,64.0
+RES,Matt Brash RP | SEA ,1,SP,91.0,0.0
+RES,Reid Detmers RP | LAA ,1,SP,275.0,71.0
+The Mike Uhlenkamp Experience
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+OF,Ronald Acuna Jr. OF | ATL ,45,"DH,OF",319.0,251.0
+OF,Mike Trout OF | LAA,56,"DH,OF",363.0,334.0
+3B,Alex Bregman 3B | CHC,25,"3B,DH",443.0,437.0
+OF,Jesse Winker DH | NYM,17,"DH,OF",238.0,39.0
+DH,George Springer OF | TOR ,18,"DH,OF",406.0,347.0
+2B,Marcus Semien 2B | NYM ,24,"2B,DH,SS",452.0,446.0
+RES,Yordan Alvarez OF | HOU,29,"DH,OF",456.0,390.0
+RES,Brandon Lowe 2B | PIT ,9,"2B,DH,OF",106.0,37.0
+SP,Framber Valdez SP | DET ,15,SP,573.0,524.0
+SP,Shane McClanahan SP | TB ,13,SP,532.0,480.0
+SP,Hyun-Jin Ryu SP | TOR,4,SP,40.0,0.0
+SP,Pablo Lopez SP | MIN ,6,SP,408.0,285.0
+RES,Blake Snell SP | LAD ,5,SP,346.0,69.0
+C,Keibert Ruiz C | WAS,5,"C,DH",200.0,119.0
+RES,German Marquez SP | SD,1,SP,298.0,0.0
+RES,Lance Lynn SP | ,4,SP,285.0,138.0
+RP,Taylor Rogers RP | MIN ,3,RP,243.0,188.0
+SS,Brendan Rodgers 2B | BOS ,1,"2B,DH,SS",278.0,105.0
+RES,Mike Clevinger RP | PIT,7,SP,209.0,0.0
+RES,Hunter Renfroe OF | KC,1,"DH,OF",283.0,0.0
+RP,Matt Barnes RP | WAS,2,RP,77.0,0.0
+RES,Spencer Torkelson 1B | DET ,3,"1B,DH",121.0,5.0
+RES,Jarred Kelenic OF | CHW,1,"DH,OF",55.0,0.0
+RES,Tarik Skubal SP | DET ,1,SP,282.0,108.0
+Swing and a Miss 2020
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+3B,Manny Machado 3B | SD,39,"3B,DH",444.0,437.0
+SP,Walker Buehler SP | SD ,66,SP,139.0,139.0
+SP,Brandon Woodruff SP | MIL ,47,SP,475.0,454.0
+C,Will Smith C | LAD,24,"C,DH",358.0,359.0
+SP,Yu Darvish SP | SD ,25,SP,581.0,581.0
+OF,Luis Robert OF | NYM ,27,"DH,OF",241.0,204.0
+OF,Tyler O'Neill OF | BAL,10,"DH,OF",220.0,53.0
+DH,Seiya Suzuki OF | CHC ,7,"DH,OF",222.0,120.0
+1B,Joey Votto 1B | TOR,9,"1B,DH",146.0,75.0
+RES,C.J. Cron 1B | BOS,4,"1B,DH",323.0,273.0
+RES,A.J. Pollock LF | ,1,"DH,OF",241.0,0.0
+SP,Jack Flaherty SP | DET,9,SP,57.0,3.0
+RES,Chris Sale SP | ATL ,1,SP,8.0,8.0
+2B,Gleyber Torres 2B | DET,3,"2B,DH,SS",308.0,158.0
+RES,Nick Madrigal 3B | LAA ,1,"2B,DH",81.0,17.0
+RP,Giovanny Gallegos RP | LAD,5,RP,199.0,110.0
+RES,Ryan Mountcastle 1B | BAL ,3,"1B,DH,OF",276.0,89.0
+SS,Bryson Stott 2B | PHI,1,"DH,SS",224.0,0.0
+RES,Jorge Soler OF | LAA,2,"DH,OF",116.0,0.0
+RES,Mark Canha OF | TEX ,2,"DH,OF",305.0,12.0
+RP,Blake Treinen RP | LAD ,1,RP,19.0,0.0
+RES,Corey Knebel RP | CHW,1,RP,126.0,22.0
+RES,Joe Barlow RP | TEX,1,RP,124.0,21.0
+RES,Andrew Benintendi OF | CHW ,1,"DH,OF",287.0,218.0
+RES,Yoan Moncada 3B | LAA,2,"3B,DH",148.0,0.0
+RES,Max Stassi C | SF,2,"C,DH",77.0,0.0
+Ireland
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+SP,Gerrit Cole SP | NYY ,65,SP,601.0,584.0
+1B,Freddie Freeman 1B | LAD,57,"1B,DH",543.0,519.0
+OF,Nick Castellanos OF | SD ,17,"DH,OF",244.0,221.0
+RP,Josh Hader RP | HOU ,15,RP,268.0,198.0
+RP,Craig Kimbrel RP | NYM ,8,RP,222.0,37.0
+OF,Mitch Haniger OF | SEA,5,"DH,OF",113.0,76.0
+DH,Anthony Rizzo 1B | NYY,15,"1B,DH",358.0,354.0
+C,Gary Sanchez C | MIL,3,"C,DH",170.0,15.0
+SP,Alek Manoah SP | LAA ,9,SP,596.0,524.0
+SS,"Carlos Correa 3B,SS | HOU ",21,"DH,SS",304.0,35.0
+OF,Fernando Tatis Jr. OF | SD,24,"DH,OF,SS",0.0,0.0
+RES,Joey Gallo 1B | CHW,5,"DH,OF",121.0,11.0
+RES,Charlie Blackmon RF | ,11,"DH,OF",294.0,290.0
+SP,Zack Greinke SP | KC,6,SP,205.0,0.0
+RES,Marcell Ozuna DH | PIT,6,"DH,OF",220.0,47.0
+SP,Zac Gallen SP | ARI ,5,SP,565.0,334.0
+RES,Patrick Corbin SP | TEX,1,SP,106.0,0.0
+RES,Joe Ryan SP | MIN ,6,SP,378.0,139.0
+RES,Luis Garcia SP | HOU ,4,SP,401.0,130.0
+RES,Eugenio Suarez 3B | CIN,1,"3B,DH,SS",277.0,19.0
+RES,Jesus Aguilar 1B | ,2,"1B,DH",174.0,0.0
+RES,Lorenzo Cain CF | ,2,"DH,OF",34.0,0.0
+RES,Noah Syndergaard SP | CLE,8,SP,255.0,174.0
+RES,Omar Narvaez C | HOU,1,"C,DH",89.0,0.0
+RES,Chris Taylor OF | LAA,7,"2B,DH,OF,SS",152.0,44.0
+Sarre
+Pos,Player,Salary,Elig,Total Fpts,Active Fpts,
+OF,Bryce Harper 1B | PHI,52,"DH,OF",309.0,301.0
+SS,Trevor Story SS | BOS ,32,"DH,SS",214.0,137.0
+SP,Adam Wainwright SP | ,17,SP,374.0,352.0
+3B,Rafael Devers 1B | SF ,44,"3B,DH",383.0,375.0
+1B,Paul Goldschmidt 1B | NYY,23,"1B,DH",507.0,505.0
+2B,"Jose Altuve 2B,OF | HOU",26,"2B,DH",465.0,432.0
+SP,Max Fried SP | NYY ,24,SP,544.0,518.0
+OF,Cody Bellinger OF | NYY,21,"DH,OF",257.0,216.0
+SP,Stephen Strasburg SP | ,7,SP,-9.0,0.0
+RP,Ranger Suarez SP | BOS,4,"RP,SP",322.0,107.0
+RP,Ryan Pressly RP | CHC,7,RP,294.0,149.0
+SP,Shane Baz SP | BAL,3,SP,49.0,22.0
+C,Yadier Molina C | ,2,"C,DH",89.0,34.0
+RES,Jordan Romano RP | LAA ,5,RP,341.0,342.0
+DH,J.D. Martinez DH | NYM,13,"DH,OF",289.0,277.0
+RES,Kenley Jansen RP | DET,8,RP,363.0,194.0
+SP,Alex Cobb SP | DET ,4,SP,319.0,147.0
+RES,Christian Vazquez C | HOU ,1,"C,DH",191.0,0.0
+RES,Joshua Lowe OF | LAA ,2,"DH,OF",58.0,0.0
+RES,"Jonathan India 2B,3B,OF | KC ",4,"2B,DH",171.0,0.0
+RES,Trent Grisham OF | NYY ,2,"DH,OF",195.0,0.0
+RES,Merrill Kelly SP | ARI ,1,SP,493.0,454.0
+RES,Chris Flexen RP | CHC,1,SP,259.0,51.0
+RES,Eduardo Escobar 3B | TOR,1,"1B,2B,3B,DH",226.0,7.0
+RES,Jesus Sanchez OF | TOR,1,"DH,OF",138.0,2.0
+RES,Dylan Carlson OF | CHC ,1,"DH,OF",229.0,70.0

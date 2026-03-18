@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dedeaux Field 4.0 — Draft Command Center</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#14141f;--border:#2a2a3f;--text:#e0e0f0;--dim:#8888aa;
+--gold:#ffd700;--green:#00cc66;--red:#ff4444;--blue:#4488ff;--purple:#aa66ff;
+--orange:#ff8833;--cyan:#00cccc;--target:#00ff88;--avoid:#ff4466}
+body{font-family:'SF Mono',Monaco,'Cascadia Code',monospace;background:var(--bg);color:var(--text);font-size:13px}
+.app{max-width:1600px;margin:0 auto;padding:8px}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--gold);border-radius:8px;padding:12px 20px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-size:16px;color:var(--gold);letter-spacing:1px}
+.budget-bar{display:flex;gap:16px;font-size:13px}
+.budget-bar .stat{display:flex;align-items:center;gap:4px}
+.budget-bar .stat .label{color:var(--dim)}
+.budget-bar .stat .val{font-weight:bold}
+.val-green{color:var(--green)}.val-red{color:var(--red)}.val-gold{color:var(--gold)}.val-blue{color:var(--blue)}
+
+.tabs{display:flex;gap:4px;margin-bottom:8px}
+.tab{padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:6px 6px 0 0;cursor:pointer;color:var(--dim);font-size:12px;transition:all .2s}
+.tab:hover{color:var(--text);border-color:var(--gold)}
+.tab.active{color:var(--gold);border-color:var(--gold);background:#1a1a2e;border-bottom-color:transparent}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:0 8px 8px 8px;padding:12px;min-height:500px}
+
+/* DRAFT TRACKER */
+.controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.controls input,.controls select{background:#0a0a15;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-family:inherit;font-size:12px}
+.controls input{width:200px}
+.controls select{min-width:80px}
+.controls button{background:#1a1a2e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px}
+.controls button:hover{border-color:var(--gold);color:var(--gold)}
+.controls button.active{border-color:var(--gold);color:var(--gold);background:#2a2a3e}
+
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#0a0a15;color:var(--dim);padding:6px 8px;text-align:left;position:sticky;top:0;z-index:10;cursor:pointer;white-space:nowrap;border-bottom:2px solid var(--border)}
+th:hover{color:var(--gold)}
+td{padding:5px 8px;border-bottom:1px solid #1a1a2e;white-space:nowrap}
+tr:hover{background:#1a1a25}
+tr.drafted{opacity:0.35;text-decoration:line-through}
+tr.drafted td{color:var(--dim)}
+tr.target{border-left:3px solid var(--target)}
+tr.avoid{border-left:3px solid var(--avoid)}
+tr.keeper{background:#1a2a1a;border-left:3px solid var(--green)}
+
+.tier-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:bold}
+.tier-1{background:#3a1a1a;color:#ff6666}.tier-2{background:#3a2a1a;color:#ffaa44}
+.tier-3{background:#3a3a1a;color:#ffdd44}.tier-4{background:#1a3a1a;color:#66dd66}
+.tier-5{background:#1a2a3a;color:#66aaff}.tier-6{background:#2a1a3a;color:#aa88ff}
+.tier-7{background:#1a1a2a;color:#8888cc}.tier-8{background:#1a1a1a;color:#888888}
+
+.pos-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:bold}
+.pos-sp{background:#1a2a4a;color:#4488ff}.pos-rp{background:#1a3a3a;color:#44cccc}
+.pos-c{background:#3a1a3a;color:#cc66cc}.pos-1b{background:#2a2a1a;color:#cccc44}
+.pos-2b{background:#1a3a1a;color:#44cc44}.pos-3b{background:#3a2a1a;color:#cc8844}
+.pos-ss{background:#2a1a3a;color:#8844cc}.pos-of{background:#1a2a2a;color:#44aacc}
+.pos-dh{background:#2a2a2a;color:#aaaaaa}.pos-util{background:#1a1a2a;color:#8888cc}
+
+.btn-draft{background:none;border:1px solid var(--border);color:var(--dim);padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px;font-family:inherit}
+.btn-draft:hover{border-color:var(--red);color:var(--red)}
+.btn-undraft{border-color:var(--green);color:var(--green)}
+.btn-undraft:hover{border-color:var(--green);color:#fff;background:var(--green)}
+
+.price-input{width:50px;background:#0a0a15;border:1px solid var(--border);color:var(--gold);padding:2px 4px;border-radius:3px;font-family:inherit;font-size:12px;text-align:center}
+
+/* BUDGET ALLOCATION */
+.alloc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alloc-section{background:#0a0a15;border:1px solid var(--border);border-radius:6px;padding:12px}
+.alloc-section h3{color:var(--gold);margin-bottom:8px;font-size:13px}
+.alloc-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a2a}
+.alloc-row .slot{color:var(--dim)}
+.alloc-row .range{color:var(--cyan)}
+.alloc-row .actual{color:var(--green);font-weight:bold}
+
+/* SCENARIO PLANNER */
+.scenario-box{background:#0a0a15;border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:12px}
+.scenario-box h3{color:var(--gold);margin-bottom:12px;font-size:14px}
+.scenario-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.scenario-row label{color:var(--dim);min-width:100px}
+.scenario-row input,.scenario-row select{background:#14141f;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-family:inherit;font-size:12px}
+.scenario-result{background:#1a2a1a;border:1px solid var(--green);border-radius:6px;padding:12px;margin-top:12px}
+.scenario-result h4{color:var(--green);margin-bottom:8px}
+.scenario-warning{background:#3a1a1a;border-color:var(--red)}
+.scenario-warning h4{color:var(--red)}
+
+/* INTEL */
+.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.intel-card{background:#0a0a15;border:1px solid var(--border);border-radius:6px;padding:12px}
+.intel-card h3{color:var(--orange);margin-bottom:6px;font-size:13px}
+.intel-card .tendency{color:var(--dim);margin-bottom:4px;font-size:12px}
+.intel-card .exploit{color:var(--green);font-size:12px}
+.nom-list{list-style:none;padding:0}
+.nom-list li{padding:4px 0;border-bottom:1px solid #1a1a2a;font-size:12px}
+.nom-list .phase{color:var(--gold);font-weight:bold;margin-top:8px}
+
+.scroll-wrap{max-height:calc(100vh - 220px);overflow-y:auto}
+.scroll-wrap::-webkit-scrollbar{width:6px}
+.scroll-wrap::-webkit-scrollbar-track{background:var(--bg)}
+.scroll-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px}
+.summary-card{background:#0a0a15;border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+.summary-card .sc-val{font-size:20px;font-weight:bold;margin:4px 0}
+.summary-card .sc-label{font-size:11px;color:var(--dim)}
+
+.my-team{margin-bottom:12px}
+.my-team h3{color:var(--gold);margin-bottom:6px}
+.my-team-grid{display:flex;gap:6px;flex-wrap:wrap}
+.my-team-chip{background:#1a2a1a;border:1px solid var(--green);border-radius:4px;padding:3px 8px;font-size:11px}
+.my-team-chip .chip-price{color:var(--gold);margin-left:4px}
+
+@media(max-width:900px){.alloc-grid,.intel-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="root"></div>
+<script>
+const RAW=[{"r":1,"n":"Tarik Skubal","ab":83.2,"p":"SP","tm":"DET","ty":"Pitcher","ti":1,"f26":587,"f25":662,"yoy":-75,"h":"\ud83d\udfe2 IRON","v":94,"p25":42,"o25":"Cardinal and Gold","p24":null,"g":52,"bl":89,"bh":108,"tg":""},{"r":2,"n":"Paul Skenes","ab":73.2,"p":"SP","tm":"PIT","ty":"Pitcher","ti":1,"f26":561,"f25":593,"yoy":-32,"h":"\ud83d\udfe1 MED","v":84,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":79,"bh":96,"tg":"\ud83c\udfaf TARGET"},{"r":3,"n":"Shohei Ohtani DH,SP","ab":73.2,"p":"SP","tm":"LAD","ty":"Hitter","ti":1,"f26":574,"f25":607,"yoy":-33,"h":"\ud83d\udfe2 IRON","v":73,"p25":60,"o25":"Austin Bats","p24":55,"g":13,"bl":69,"bh":83,"tg":""},{"r":4,"n":"Aaron Judge","ab":77.6,"p":"OF","tm":"NYY","ty":"Hitter","ti":1,"f26":568,"f25":623,"yoy":-55,"h":"\u2014","v":72,"p25":54,"o25":"MeShe","p24":55,"g":18,"bl":68,"bh":82,"tg":"\ud83d\udeab AVOID"},{"r":5,"n":"Bryan Woo","ab":75.3,"p":"SP","tm":"SEA","ty":"Pitcher","ti":1,"f26":529,"f25":576,"yoy":-47,"h":"\ud83d\udfe1 MED","v":71,"p25":null,"o25":"undrafted","p24":2,"g":null,"bl":67,"bh":81,"tg":"\ud83c\udfaf TARGET"},{"r":6,"n":"Jose Ramirez","ab":80.2,"p":"3B","tm":"CLE","ty":"Hitter","ti":1,"f26":557,"f25":585,"yoy":-28,"h":"\ud83d\udfe2 IRON","v":68,"p25":58,"o25":"Cardinal and Gold","p24":46,"g":10,"bl":64,"bh":78,"tg":"\ud83c\udfaf TARGET"},{"r":7,"n":"Juan Soto","ab":85.4,"p":"OF","tm":"NYM","ty":"Hitter","ti":1,"f26":550,"f25":629,"yoy":-79,"h":"\ud83d\udfe2 IRON","v":66,"p25":48,"o25":"Sarre","p24":62,"g":18,"bl":62,"bh":75,"tg":"\ud83c\udfaf TARGET"},{"r":8,"n":"Bobby Witt","ab":72.8,"p":"SS","tm":"KC","ty":"Hitter","ti":1,"f26":531,"f25":516,"yoy":15,"h":"\ud83d\udfe2 IRON","v":61,"p25":50,"o25":"Sofa Kings","p24":49,"g":11,"bl":57,"bh":70,"tg":"\ud83c\udfaf TARGET"},{"r":9,"n":"Matthew Boyd","ab":69.0,"p":"SP","tm":"CHC","ty":"Pitcher","ti":1,"f26":495,"f25":457,"yoy":38,"h":"\ud83d\udd34 HIGH","v":58,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":55,"bh":66,"tg":"\ud83c\udfaf TARGET"},{"r":10,"n":"Kyle Tucker","ab":79.8,"p":"OF","tm":"LAD","ty":"Hitter","ti":1,"f26":514,"f25":465,"yoy":49,"h":"\ud83d\udd34 HIGH","v":56,"p25":41,"o25":"The Mike Uhlenkamp Experience","p24":44,"g":15,"bl":53,"bh":64,"tg":"\ud83c\udfaf TARGET"},{"r":11,"n":"Fernando Tatis Jr.","ab":75.1,"p":"OF","tm":"SD","ty":"Hitter","ti":1,"f26":493,"f25":496,"yoy":-3,"h":"\ud83d\udfe2 IRON","v":50,"p25":41,"o25":"Swing and a Miss 2020","p24":49,"g":9,"bl":47,"bh":57,"tg":""},{"r":12,"n":"Francisco Lindor","ab":73.5,"p":"SS","tm":"NYM","ty":"Hitter","ti":1,"f26":491,"f25":514,"yoy":-23,"h":"\ud83d\udfe2 IRON","v":49,"p25":null,"o25":"undrafted","p24":27,"g":null,"bl":46,"bh":56,"tg":""},{"r":13,"n":"Logan Webb","ab":78.0,"p":"SP","tm":"SF","ty":"Pitcher","ti":1,"f26":470,"f25":543,"yoy":-73,"h":"\ud83d\udfe2 IRON","v":48,"p25":28,"o25":"Bushwood CC","p24":36,"g":20,"bl":45,"bh":55,"tg":""},{"r":14,"n":"Garrett Crochet","ab":79.4,"p":"SP","tm":"BOS","ty":"Pitcher","ti":1,"f26":467,"f25":680,"yoy":-213,"h":"\ud83d\udfe2 IRON","v":47,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":44,"bh":54,"tg":"\ud83c\udfaf TARGET"},{"r":15,"n":"Vladimir Guerrero Jr.","ab":62.0,"p":"1B","tm":"TOR","ty":"Hitter","ti":1,"f26":482,"f25":445,"yoy":37,"h":"\ud83d\udfe2 IRON","v":46,"p25":37,"o25":"Bushwood CC","p24":30,"g":9,"bl":43,"bh":52,"tg":"\ud83d\udccb FALLBACK"},{"r":16,"n":"Chris Sale","ab":74.2,"p":"SP","tm":"ATL","ty":"Pitcher","ti":1,"f26":463,"f25":378,"yoy":85,"h":"\ud83d\udfe1 MED","v":46,"p25":null,"o25":"undrafted","p24":10,"g":null,"bl":43,"bh":52,"tg":""},{"r":17,"n":"Ketel Marte","ab":71.1,"p":"2B","tm":"ARI","ty":"Hitter","ti":1,"f26":476,"f25":395,"yoy":81,"h":"\u2014","v":45,"p25":35,"o25":"Austin Bats","p24":null,"g":10,"bl":42,"bh":51,"tg":""},{"r":18,"n":"Trea Turner","ab":71.9,"p":"SS","tm":"PHI","ty":"Hitter","ti":1,"f26":478,"f25":458,"yoy":20,"h":"\ud83d\udfe2 IRON","v":45,"p25":28,"o25":"Bushwood CC","p24":33,"g":17,"bl":42,"bh":51,"tg":""},{"r":19,"n":"George Springer","ab":67.5,"p":"OF","tm":"TOR","ty":"Hitter","ti":1,"f26":476,"f25":486,"yoy":-10,"h":"\u2014","v":45,"p25":3,"o25":"Moneyball Dos","p24":17,"g":42,"bl":42,"bh":51,"tg":"\ud83c\udfaf TARGET"},{"r":20,"n":"Nathan Eovaldi","ab":67.1,"p":"SP","tm":"TEX","ty":"Pitcher","ti":1,"f26":459,"f25":439,"yoy":20,"h":"\ud83d\udfe1 MED","v":44,"p25":5,"o25":"MeShe","p24":null,"g":39,"bl":41,"bh":50,"tg":"\ud83c\udfaf TARGET"},{"r":21,"n":"Julio Rodriguez","ab":79.5,"p":"OF","tm":"SEA","ty":"Hitter","ti":1,"f26":472,"f25":490,"yoy":-18,"h":"\ud83d\udfe2 IRON","v":44,"p25":30,"o25":"Bushwood CC","p24":43,"g":14,"bl":41,"bh":50,"tg":""},{"r":22,"n":"Yoshinobu Yamamoto","ab":80.6,"p":"SP","tm":"LAD","ty":"Pitcher","ti":1,"f26":459,"f25":541,"yoy":-82,"h":"\ud83d\udfe1 MED","v":44,"p25":29,"o25":"Moneyball Dos","p24":41,"g":15,"bl":41,"bh":50,"tg":""},{"r":23,"n":"Logan Gilbert","ab":74.9,"p":"SP","tm":"SEA","ty":"Pitcher","ti":1,"f26":453,"f25":360,"yoy":93,"h":"\u2014","v":42,"p25":36,"o25":"Sofa Kings","p24":19,"g":6,"bl":39,"bh":48,"tg":"\ud83d\udccb FALLBACK"},{"r":24,"n":"Corbin Carroll","ab":70.5,"p":"OF","tm":"ARI","ty":"Hitter","ti":1,"f26":464,"f25":505,"yoy":-41,"h":"\u2014","v":41,"p25":39,"o25":"Bushwood CC","p24":null,"g":2,"bl":38,"bh":47,"tg":"\ud83d\udccb FALLBACK"},{"r":25,"n":"Kevin Gausman","ab":71.7,"p":"SP","tm":"TOR","ty":"Pitcher","ti":2,"f26":444,"f25":471,"yoy":-27,"h":"\ud83d\udfe2 IRON","v":38,"p25":14,"o25":"MeShe","p24":null,"g":24,"bl":36,"bh":43,"tg":"\ud83d\udccb FALLBACK"},{"r":26,"n":"Jacob deGrom","ab":68.9,"p":"SP","tm":"TEX","ty":"Pitcher","ti":2,"f26":444,"f25":505,"yoy":-61,"h":"\ud83d\udd34 HIGH","v":38,"p25":null,"o25":"undrafted","p24":3,"g":null,"bl":36,"bh":43,"tg":""},{"r":27,"n":"Zack Wheeler","ab":63.2,"p":"SP","tm":"PHI","ty":"Pitcher","ti":2,"f26":439,"f25":489,"yoy":-50,"h":"\ud83d\udfe1 MED","v":37,"p25":39,"o25":"MeShe","p24":40,"g":-2,"bl":35,"bh":42,"tg":"\ud83c\udfaf TARGET"},{"r":28,"n":"Jeremy Pena","ab":62.4,"p":"SS","tm":"HOU","ty":"Hitter","ti":1,"f26":447,"f25":359,"yoy":88,"h":"\u2014","v":36,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":34,"bh":41,"tg":""},{"r":29,"n":"Hunter Brown","ab":78.0,"p":"SP","tm":"HOU","ty":"Pitcher","ti":2,"f26":437,"f25":561,"yoy":-124,"h":"\u2014","v":36,"p25":21,"o25":"Ireland","p24":null,"g":15,"bl":34,"bh":41,"tg":""},{"r":30,"n":"Yordan Alvarez","ab":73.8,"p":"OF","tm":"HOU","ty":"Hitter","ti":1,"f26":445,"f25":110,"yoy":335,"h":"\ud83d\udd34 HIGH","v":36,"p25":44,"o25":"The Mike Uhlenkamp Experience","p24":39,"g":-8,"bl":34,"bh":41,"tg":"\ud83d\udeab AVOID"},{"r":31,"n":"Junior Caminero","ab":65.1,"p":"3B","tm":"TB","ty":"Hitter","ti":2,"f26":442,"f25":428,"yoy":14,"h":"\ud83d\udd34 HIGH","v":35,"p25":null,"o25":"undrafted","p24":12,"g":null,"bl":33,"bh":40,"tg":"\ud83c\udfaf TARGET"},{"r":32,"n":"Shota Imanaga","ab":60.9,"p":"SP","tm":"CHC","ty":"Pitcher","ti":2,"f26":435,"f25":344,"yoy":91,"h":"\u2014","v":35,"p25":18,"o25":"Cardinal and Gold","p24":6,"g":17,"bl":33,"bh":40,"tg":""},{"r":33,"n":"Elly De La Cruz","ab":62.2,"p":"SS","tm":"CIN","ty":"Hitter","ti":2,"f26":442,"f25":404,"yoy":38,"h":"\ud83d\udfe2 IRON","v":35,"p25":50,"o25":"Swing and a Miss 2020","p24":33,"g":-15,"bl":33,"bh":40,"tg":"\ud83d\udeab AVOID"},{"r":34,"n":"Joe Ryan","ab":72.6,"p":"SP","tm":"MIN","ty":"Pitcher","ti":2,"f26":432,"f25":465,"yoy":-33,"h":"\ud83d\udfe2 IRON","v":34,"p25":13,"o25":"MeShe","p24":15,"g":21,"bl":32,"bh":39,"tg":""},{"r":35,"n":"Nick Kurtz","ab":48.8,"p":"1B","tm":"ATH","ty":"Hitter","ti":2,"f26":436,"f25":335,"yoy":101,"h":"\ud83d\udd34 HIGH","v":33,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":31,"bh":37,"tg":"\ud83c\udfaf TARGET"},{"r":36,"n":"Manny Machado","ab":73.8,"p":"3B","tm":"SD","ty":"Hitter","ti":2,"f26":436,"f25":403,"yoy":33,"h":"\ud83d\udfe2 IRON","v":33,"p25":22,"o25":"MeShe","p24":21,"g":11,"bl":31,"bh":37,"tg":"\ud83c\udfaf TARGET"},{"r":37,"n":"Gunnar Henderson","ab":70.7,"p":"SS","tm":"BAL","ty":"Hitter","ti":2,"f26":431,"f25":407,"yoy":24,"h":"\ud83d\udfe2 IRON","v":32,"p25":45,"o25":"Ireland","p24":null,"g":-13,"bl":30,"bh":36,"tg":""},{"r":38,"n":"Jackson Chourio","ab":71.7,"p":"OF","tm":"MIL","ty":"Hitter","ti":2,"f26":428,"f25":384,"yoy":44,"h":"\u2014","v":31,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":29,"bh":35,"tg":"\ud83d\udccb FALLBACK"},{"r":39,"n":"Framber Valdez","ab":73.5,"p":"SP","tm":"DET","ty":"Pitcher","ti":2,"f26":424,"f25":453,"yoy":-29,"h":"\ud83d\udfe2 IRON","v":31,"p25":28,"o25":"Swing and a Miss 2020","p24":30,"g":3,"bl":29,"bh":35,"tg":""},{"r":40,"n":"Kyle Schwarber","ab":74.9,"p":"OF","tm":"PHI","ty":"Hitter","ti":2,"f26":425,"f25":531,"yoy":-106,"h":"\ud83d\udfe2 IRON","v":30,"p25":10,"o25":"Moneyball Dos","p24":14,"g":20,"bl":28,"bh":34,"tg":""},{"r":41,"n":"Brent Rooker","ab":64.5,"p":"OF","tm":"ATH","ty":"Hitter","ti":2,"f26":425,"f25":411,"yoy":14,"h":"\ud83d\udfe2 IRON","v":30,"p25":8,"o25":"Moneyball Dos","p24":null,"g":22,"bl":28,"bh":34,"tg":"\ud83c\udfaf TARGET"},{"r":42,"n":"Luis Robert","ab":58.5,"p":"OF","tm":"NYM","ty":"Hitter","ti":2,"f26":419,"f25":263,"yoy":156,"h":"\ud83d\udfe1 MED","v":28,"p25":11,"o25":"Austin Bats","p24":23,"g":17,"bl":26,"bh":32,"tg":"\ud83d\udeab AVOID"},{"r":43,"n":"Mookie Betts","ab":78.8,"p":"2B/OF/SS","tm":"LAD","ty":"Hitter","ti":2,"f26":415,"f25":420,"yoy":-5,"h":"\ud83d\udfe1 MED","v":27,"p25":41,"o25":"Moneyball Dos","p24":63,"g":-14,"bl":25,"bh":31,"tg":""},{"r":44,"n":"Alex Bregman","ab":69.2,"p":"3B","tm":"CHC","ty":"Hitter","ti":2,"f26":414,"f25":300,"yoy":114,"h":"\ud83d\udfe1 MED","v":27,"p25":18,"o25":"Sofa Kings","p24":27,"g":9,"bl":25,"bh":31,"tg":""},{"r":45,"n":"Oneil Cruz","ab":66.3,"p":"OF/SS","tm":"PIT","ty":"Hitter","ti":2,"f26":415,"f25":282,"yoy":133,"h":"\u2014","v":27,"p25":19,"o25":"Sofa Kings","p24":15,"g":8,"bl":25,"bh":31,"tg":""},{"r":46,"n":"Rafael Devers","ab":75.6,"p":"1B/3B","tm":"SF","ty":"Hitter","ti":2,"f26":410,"f25":423,"yoy":-13,"h":"\u2014","v":25,"p25":24,"o25":"Moneyball Dos","p24":40,"g":1,"bl":23,"bh":28,"tg":"\ud83d\udccb FALLBACK"},{"r":47,"n":"Luis Castillo","ab":65.0,"p":"SP","tm":"SEA","ty":"Pitcher","ti":2,"f26":408,"f25":426,"yoy":-18,"h":"\ud83d\udfe2 IRON","v":25,"p25":22,"o25":"Sarre","p24":33,"g":3,"bl":23,"bh":28,"tg":""},{"r":48,"n":"Ryan Pepiot","ab":64.0,"p":"SP","tm":"TB","ty":"Pitcher","ti":2,"f26":408,"f25":386,"yoy":22,"h":"\ud83d\udfe1 MED","v":25,"p25":4,"o25":"Sofa Kings","p24":4,"g":21,"bl":23,"bh":28,"tg":"\ud83c\udfaf TARGET"},{"r":49,"n":"Jacob Wilson","ab":44.7,"p":"SS","tm":"ATH","ty":"Hitter","ti":2,"f26":407,"f25":333,"yoy":74,"h":"\ud83d\udd34 HIGH","v":24,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":22,"bh":27,"tg":"\ud83c\udfaf TARGET"},{"r":50,"n":"Corey Seager","ab":53.1,"p":"SS","tm":"TEX","ty":"Hitter","ti":2,"f26":407,"f25":270,"yoy":137,"h":"\ud83d\udfe1 MED","v":24,"p25":25,"o25":"Austin Bats","p24":31,"g":-1,"bl":22,"bh":27,"tg":""},{"r":51,"n":"Ronald Acuna Jr.","ab":64.8,"p":"OF","tm":"ATL","ty":"Hitter","ti":2,"f26":407,"f25":285,"yoy":122,"h":"\ud83d\udd34 HIGH","v":24,"p25":35,"o25":"The Mike Uhlenkamp Experience","p24":70,"g":-11,"bl":22,"bh":27,"tg":"\ud83d\udeab AVOID"},{"r":52,"n":"Jazz Chisholm 2B,3B","ab":39.7,"p":"UTIL","tm":"NYY","ty":"Hitter","ti":3,"f26":401,"f25":342,"yoy":59,"h":"\ud83d\udfe1 MED","v":23,"p25":null,"o25":"undrafted","p24":4,"g":null,"bl":19,"bh":24,"tg":""},{"r":53,"n":"Trevor Rogers","ab":67.8,"p":"SP","tm":"BAL","ty":"Pitcher","ti":3,"f26":404,"f25":362,"yoy":42,"h":"\ud83d\udfe1 MED","v":23,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":19,"bh":24,"tg":"\ud83c\udfaf TARGET"},{"r":54,"n":"Noah Cameron","ab":57.6,"p":"SP","tm":"KC","ty":"Pitcher","ti":3,"f26":404,"f25":336,"yoy":68,"h":"\ud83d\udd34 HIGH","v":23,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":19,"bh":24,"tg":"\ud83c\udfaf TARGET"},{"r":55,"n":"Cole Ragans","ab":73.9,"p":"SP","tm":"KC","ty":"Pitcher","ti":2,"f26":405,"f25":156,"yoy":249,"h":"\ud83d\udd34 HIGH","v":23,"p25":null,"o25":"undrafted","p24":19,"g":null,"bl":21,"bh":26,"tg":"\ud83c\udfaf TARGET"},{"r":56,"n":"Josh Naylor","ab":58.1,"p":"1B","tm":"SEA","ty":"Hitter","ti":3,"f26":402,"f25":471,"yoy":-69,"h":"\u2014","v":23,"p25":null,"o25":"undrafted","p24":6,"g":null,"bl":19,"bh":24,"tg":""},{"r":57,"n":"Jackson Merrill","ab":67.0,"p":"OF","tm":"SD","ty":"Hitter","ti":2,"f26":403,"f25":255,"yoy":148,"h":"\ud83d\udfe1 MED","v":23,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":21,"bh":26,"tg":"\ud83c\udfaf TARGET"},{"r":58,"n":"Yandy Diaz","ab":56.1,"p":"1B","tm":"TB","ty":"Hitter","ti":3,"f26":400,"f25":422,"yoy":-22,"h":"\ud83d\udfe2 IRON","v":22,"p25":1,"o25":"Moneyball Dos","p24":4,"g":21,"bl":18,"bh":23,"tg":"\ud83c\udfaf TARGET"},{"r":59,"n":"Jose Altuve 2B,OF","ab":66.1,"p":"2B/OF","tm":"HOU","ty":"Hitter","ti":3,"f26":395,"f25":381,"yoy":14,"h":"\ud83d\udfe2 IRON","v":21,"p25":18,"o25":"Swing and a Miss 2020","p24":null,"g":3,"bl":17,"bh":22,"tg":""},{"r":60,"n":"Bryce Harper","ab":58.9,"p":"1B","tm":"PHI","ty":"Hitter","ti":3,"f26":394,"f25":376,"yoy":18,"h":"\u2014","v":21,"p25":30,"o25":"Swing and a Miss 2020","p24":null,"g":-9,"bl":17,"bh":22,"tg":""},{"r":61,"n":"Freddie Freeman","ab":66.2,"p":"1B","tm":"LAD","ty":"Hitter","ti":3,"f26":391,"f25":398,"yoy":-7,"h":"\ud83d\udfe2 IRON","v":20,"p25":26,"o25":"Moneyball Dos","p24":60,"g":-6,"bl":17,"bh":21,"tg":"\ud83d\udccb FALLBACK"},{"r":62,"n":"Jarren Duran","ab":72.8,"p":"OF","tm":"BOS","ty":"Hitter","ti":3,"f26":391,"f25":399,"yoy":-8,"h":"\ud83d\udfe2 IRON","v":20,"p25":null,"o25":"undrafted","p24":2,"g":null,"bl":17,"bh":21,"tg":"\ud83c\udfaf TARGET"},{"r":63,"n":"Zachary Neto","ab":44.7,"p":"SS","tm":"LAA","ty":"Hitter","ti":3,"f26":384,"f25":327,"yoy":57,"h":"\u2014","v":18,"p25":7,"o25":"MeShe","p24":null,"g":11,"bl":15,"bh":18,"tg":""},{"r":64,"n":"Michael Wacha","ab":70.2,"p":"SP","tm":"KC","ty":"Pitcher","ti":3,"f26":392,"f25":331,"yoy":61,"h":"\ud83d\udfe2 IRON","v":18,"p25":null,"o25":"undrafted","p24":3,"g":null,"bl":15,"bh":18,"tg":""},{"r":65,"n":"Willy Adames","ab":62.4,"p":"SS","tm":"SF","ty":"Hitter","ti":3,"f26":383,"f25":336,"yoy":47,"h":"\ud83d\udfe2 IRON","v":17,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":14,"bh":17,"tg":""},{"r":66,"n":"Luis Arraez","ab":73.5,"p":"1B/2B","tm":"SF","ty":"Hitter","ti":3,"f26":378,"f25":412,"yoy":-34,"h":"\u2014","v":16,"p25":17,"o25":"Ireland","p24":16,"g":-1,"bl":13,"bh":16,"tg":""},{"r":67,"n":"Wyatt Langford","ab":63.1,"p":"OF","tm":"TEX","ty":"Hitter","ti":3,"f26":377,"f25":330,"yoy":47,"h":"\u2014","v":16,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":13,"bh":16,"tg":"\ud83d\udccb FALLBACK"},{"r":68,"n":"Shane Smith","ab":58.7,"p":"SP","tm":"CHW","ty":"Pitcher","ti":3,"f26":384,"f25":305,"yoy":79,"h":"\ud83d\udfe2 IRON","v":15,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":12,"bh":15,"tg":""},{"r":69,"n":"Chandler Simpson","ab":60.0,"p":"OF","tm":"TB","ty":"Hitter","ti":3,"f26":375,"f25":317,"yoy":58,"h":"\ud83d\udd34 HIGH","v":15,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":12,"bh":15,"tg":"\ud83d\udccb FALLBACK"},{"r":70,"n":"Xander Bogaerts","ab":65.1,"p":"2B/SS","tm":"SD","ty":"Hitter","ti":3,"f26":374,"f25":308,"yoy":66,"h":"\ud83d\udfe1 MED","v":15,"p25":7,"o25":"Sarre","p24":12,"g":8,"bl":12,"bh":15,"tg":""},{"r":71,"n":"Lawrence Butler","ab":59.0,"p":"OF","tm":"ATH","ty":"Hitter","ti":3,"f26":374,"f25":311,"yoy":63,"h":"\ud83d\udfe2 IRON","v":15,"p25":12,"o25":"Swing and a Miss 2020","p24":null,"g":3,"bl":12,"bh":15,"tg":""},{"r":72,"n":"Maikel Garcia 3B,SS","ab":69.3,"p":"2B/3B/OF/SS","tm":"KC","ty":"Hitter","ti":3,"f26":374,"f25":445,"yoy":-71,"h":"\ud83d\udfe2 IRON","v":15,"p25":8,"o25":"MeShe","p24":2,"g":7,"bl":12,"bh":15,"tg":""},{"r":73,"n":"Carlos Rodon","ab":62.9,"p":"SP","tm":"NYY","ty":"Pitcher","ti":3,"f26":383,"f25":558,"yoy":-175,"h":"\ud83d\udfe2 IRON","v":15,"p25":15,"o25":"Ireland","p24":8,"g":0,"bl":12,"bh":15,"tg":"\ud83c\udfaf TARGET"},{"r":74,"n":"Jack Flaherty","ab":63.4,"p":"SP","tm":"DET","ty":"Pitcher","ti":3,"f26":382,"f25":319,"yoy":63,"h":"\ud83d\udfe2 IRON","v":15,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":12,"bh":15,"tg":"\ud83c\udfaf TARGET"},{"r":75,"n":"Gavin Williams","ab":73.4,"p":"SP","tm":"CLE","ty":"Pitcher","ti":3,"f26":381,"f25":433,"yoy":-52,"h":"\ud83d\udfe2 IRON","v":14,"p25":null,"o25":"undrafted","p24":3,"g":null,"bl":11,"bh":14,"tg":""},{"r":76,"n":"Yusei Kikuchi","ab":61.0,"p":"SP","tm":"LAA","ty":"Pitcher","ti":3,"f26":380,"f25":329,"yoy":51,"h":"\ud83d\udfe2 IRON","v":14,"p25":8,"o25":"Moneyball Dos","p24":1,"g":6,"bl":11,"bh":14,"tg":""},{"r":77,"n":"Randy Arozarena","ab":62.6,"p":"OF","tm":"SEA","ty":"Hitter","ti":3,"f26":373,"f25":409,"yoy":-36,"h":"\ud83d\udfe2 IRON","v":14,"p25":12,"o25":"Austin Bats","p24":null,"g":2,"bl":11,"bh":14,"tg":""},{"r":78,"n":"Kris Bubic","ab":58.9,"p":"RP/SP","tm":"KC","ty":"Pitcher","ti":3,"f26":380,"f25":311,"yoy":69,"h":"\ud83d\udfe1 MED","v":14,"p25":1,"o25":"The Mike Uhlenkamp Experience","p24":null,"g":13,"bl":11,"bh":14,"tg":""},{"r":79,"n":"Kyle Stowers","ab":52.5,"p":"OF","tm":"MIA","ty":"Hitter","ti":4,"f26":372,"f25":291,"yoy":81,"h":"\ud83d\udfe1 MED","v":14,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":11,"bh":14,"tg":"\ud83d\udccb FALLBACK"},{"r":80,"n":"Brendan Donovan 2B,OF","ab":59.5,"p":"2B/OF/SS","tm":"SEA","ty":"Hitter","ti":4,"f26":369,"f25":288,"yoy":81,"h":"\ud83d\udfe1 MED","v":13,"p25":7,"o25":"Sarre","p24":2,"g":6,"bl":11,"bh":13,"tg":""},{"r":81,"n":"Sal Frelick","ab":57.9,"p":"OF","tm":"MIL","ty":"Hitter","ti":4,"f26":369,"f25":372,"yoy":-3,"h":"\ud83d\udfe1 MED","v":13,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":11,"bh":13,"tg":"\ud83c\udfaf TARGET"},{"r":82,"n":"Matt Olson","ab":60.1,"p":"1B","tm":"ATL","ty":"Hitter","ti":4,"f26":369,"f25":407,"yoy":-38,"h":"\ud83d\udfe2 IRON","v":13,"p25":13,"o25":"Bushwood CC","p24":null,"g":0,"bl":11,"bh":13,"tg":""},{"r":83,"n":"Christian Yelich","ab":66.4,"p":"OF","tm":"MIL","ty":"Hitter","ti":4,"f26":367,"f25":393,"yoy":-26,"h":"\ud83d\udfe1 MED","v":13,"p25":25,"o25":"Cardinal and Gold","p24":21,"g":-12,"bl":11,"bh":13,"tg":""},{"r":84,"n":"Edwin Diaz","ab":53.6,"p":"RP","tm":"LAD","ty":"Pitcher","ti":4,"f26":377,"f25":359,"yoy":18,"h":"\ud83d\udfe2 IRON","v":13,"p25":6,"o25":"Moneyball Dos","p24":6,"g":7,"bl":11,"bh":13,"tg":"\ud83c\udfaf TARGET"},{"r":85,"n":"Nick Lodolo","ab":66.0,"p":"SP","tm":"CIN","ty":"Pitcher","ti":3,"f26":379,"f25":391,"yoy":-12,"h":"\ud83d\udfe1 MED","v":13,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":11,"bh":13,"tg":""},{"r":86,"n":"Sonny Gray","ab":69.8,"p":"SP","tm":"BOS","ty":"Pitcher","ti":4,"f26":377,"f25":433,"yoy":-56,"h":"\u2014","v":13,"p25":3,"o25":"Bushwood CC","p24":null,"g":10,"bl":11,"bh":13,"tg":""},{"r":87,"n":"Jameson Taillon","ab":54.7,"p":"SP","tm":"CHC","ty":"Pitcher","ti":4,"f26":375,"f25":320,"yoy":55,"h":"\ud83d\udfe1 MED","v":12,"p25":8,"o25":"MeShe","p24":null,"g":4,"bl":10,"bh":12,"tg":"\ud83c\udfaf TARGET"},{"r":88,"n":"Bryan Reynolds","ab":66.1,"p":"OF","tm":"PIT","ty":"Hitter","ti":4,"f26":363,"f25":271,"yoy":92,"h":"\ud83d\udfe2 IRON","v":12,"p25":16,"o25":"Austin Bats","p24":null,"g":-4,"bl":10,"bh":12,"tg":"\ud83c\udfaf TARGET"},{"r":89,"n":"Bo Bichette","ab":61.2,"p":"SS","tm":"NYM","ty":"Hitter","ti":4,"f26":364,"f25":390,"yoy":-26,"h":"\ud83d\udd34 HIGH","v":12,"p25":14,"o25":"Bushwood CC","p24":15,"g":-2,"bl":10,"bh":12,"tg":""},{"r":90,"n":"Daulton Varsho","ab":55.8,"p":"OF","tm":"TOR","ty":"Hitter","ti":4,"f26":364,"f25":179,"yoy":185,"h":"\ud83d\udd34 HIGH","v":12,"p25":1,"o25":"The Mike Uhlenkamp Experience","p24":1,"g":11,"bl":10,"bh":12,"tg":""},{"r":91,"n":"Tyler Soderstrom 1B,OF","ab":41.7,"p":"UTIL","tm":"ATH","ty":"Hitter","ti":4,"f26":362,"f25":365,"yoy":-3,"h":"\ud83d\udfe2 IRON","v":11,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":9,"bh":11,"tg":""},{"r":92,"n":"Emmet Sheehan","ab":58.1,"p":"SP","tm":"LAD","ty":"Pitcher","ti":4,"f26":372,"f25":220,"yoy":152,"h":"\ud83d\udd34 HIGH","v":11,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":9,"bh":11,"tg":"\ud83c\udfaf TARGET"},{"r":93,"n":"Spencer Strider","ab":64.8,"p":"SP","tm":"ATL","ty":"Pitcher","ti":4,"f26":374,"f25":226,"yoy":148,"h":"\ud83d\udd34 HIGH","v":11,"p25":14,"o25":"MeShe","p24":61,"g":-3,"bl":9,"bh":11,"tg":""},{"r":94,"n":"MacKenzie Gore","ab":62.3,"p":"SP","tm":"TEX","ty":"Pitcher","ti":4,"f26":374,"f25":317,"yoy":57,"h":"\ud83d\udfe1 MED","v":11,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":9,"bh":11,"tg":"\ud83c\udfaf TARGET"},{"r":95,"n":"Mickey Moniak","ab":49.4,"p":"OF","tm":"COL","ty":"Hitter","ti":4,"f26":360,"f25":279,"yoy":81,"h":"\ud83d\udfe1 MED","v":11,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":9,"bh":11,"tg":"\ud83d\udccb FALLBACK"},{"r":96,"n":"Brice Turang","ab":69.2,"p":"2B","tm":"MIL","ty":"Hitter","ti":4,"f26":362,"f25":394,"yoy":-32,"h":"\ud83d\udfe2 IRON","v":11,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":9,"bh":11,"tg":""},{"r":97,"n":"Ryne Nelson SP,RP","ab":46.0,"p":"UTIL","tm":"ARI","ty":"Pitcher","ti":4,"f26":370,"f25":370,"yoy":0,"h":"\ud83d\udfe2 IRON","v":10,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":8,"bh":10,"tg":""},{"r":98,"n":"Michael King","ab":64.8,"p":"SP","tm":"SD","ty":"Pitcher","ti":4,"f26":371,"f25":170,"yoy":201,"h":"\ud83d\udfe1 MED","v":10,"p25":null,"o25":"undrafted","p24":6,"g":null,"bl":8,"bh":10,"tg":"\ud83d\udccb FALLBACK"},{"r":99,"n":"Michael Busch","ab":53.9,"p":"1B","tm":"CHC","ty":"Hitter","ti":4,"f26":357,"f25":373,"yoy":-16,"h":"\ud83d\udfe1 MED","v":10,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":8,"bh":10,"tg":""},{"r":100,"n":"Xavier Edwards 2B,SS","ab":56.7,"p":"2B/SS","tm":"MIA","ty":"Hitter","ti":4,"f26":359,"f25":334,"yoy":25,"h":"\ud83d\udfe2 IRON","v":10,"p25":9,"o25":"Sofa Kings","p24":null,"g":1,"bl":8,"bh":10,"tg":""},{"r":101,"n":"Cameron Schlittler","ab":64.4,"p":"SP","tm":"NYY","ty":"Pitcher","ti":4,"f26":368,"f25":187,"yoy":181,"h":"\ud83d\udd34 HIGH","v":9,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":7,"bh":9,"tg":"\ud83d\udccb FALLBACK"},{"r":102,"n":"Pete Alonso","ab":61.5,"p":"1B","tm":"BAL","ty":"Hitter","ti":4,"f26":355,"f25":435,"yoy":-80,"h":"\ud83d\udfe2 IRON","v":9,"p25":14,"o25":"MeShe","p24":24,"g":-5,"bl":7,"bh":9,"tg":""},{"r":103,"n":"Brady Singer","ab":61.2,"p":"SP","tm":"CIN","ty":"Pitcher","ti":4,"f26":368,"f25":375,"yoy":-7,"h":"\ud83d\udfe2 IRON","v":9,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":7,"bh":9,"tg":"\ud83d\udccb FALLBACK"},{"r":104,"n":"Tyler Mahle","ab":61.5,"p":"SP","tm":"SF","ty":"Pitcher","ti":5,"f26":364,"f25":225,"yoy":139,"h":"\ud83d\udfe1 MED","v":8,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":6,"bh":8,"tg":""},{"r":105,"n":"Tyler Glasnow","ab":66.9,"p":"SP","tm":"LAD","ty":"Pitcher","ti":5,"f26":366,"f25":243,"yoy":123,"h":"\ud83d\udfe1 MED","v":8,"p25":27,"o25":"The Mike Uhlenkamp Experience","p24":22,"g":-19,"bl":6,"bh":8,"tg":"\ud83d\udccb FALLBACK"},{"r":106,"n":"Sandy Alcantara","ab":58.3,"p":"SP","tm":"MIA","ty":"Pitcher","ti":5,"f26":364,"f25":282,"yoy":82,"h":"\ud83d\udfe2 IRON","v":8,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":6,"bh":8,"tg":""},{"r":107,"n":"Seiya Suzuki","ab":61.4,"p":"OF","tm":"CHC","ty":"Hitter","ti":5,"f26":346,"f25":366,"yoy":-20,"h":"\u2014","v":7,"p25":5,"o25":"Sarre","p24":13,"g":2,"bl":5,"bh":7,"tg":"\ud83c\udfaf TARGET"},{"r":108,"n":"Matt Chapman","ab":67.3,"p":"3B","tm":"SF","ty":"Hitter","ti":5,"f26":346,"f25":280,"yoy":66,"h":"\ud83d\udfe1 MED","v":7,"p25":7,"o25":"Bushwood CC","p24":1,"g":0,"bl":5,"bh":7,"tg":"\ud83d\udccb FALLBACK"},{"r":109,"n":"James Wood","ab":59.7,"p":"OF","tm":"WAS","ty":"Hitter","ti":4,"f26":348,"f25":364,"yoy":-16,"h":"\ud83d\udd34 HIGH","v":7,"p25":16,"o25":"Sofa Kings","p24":null,"g":-9,"bl":5,"bh":7,"tg":""},{"r":110,"n":"Seth Lugo","ab":67.8,"p":"SP","tm":"KC","ty":"Pitcher","ti":5,"f26":363,"f25":288,"yoy":75,"h":"\u2014","v":7,"p25":14,"o25":"Cardinal and Gold","p24":1,"g":-7,"bl":5,"bh":7,"tg":""},{"r":111,"n":"Jakob Marsee","ab":54.4,"p":"OF","tm":"MIA","ty":"Hitter","ti":5,"f26":344,"f25":171,"yoy":173,"h":"\ud83d\udd34 HIGH","v":6,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":4,"bh":6,"tg":""},{"r":112,"n":"Hunter Goodman","ab":38.1,"p":"C","tm":"COL","ty":"Hitter","ti":5,"f26":344,"f25":313,"yoy":31,"h":"\ud83d\udfe1 MED","v":6,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":4,"bh":6,"tg":"\ud83c\udfaf TARGET"},{"r":113,"n":"Alec Burleson 1B,OF","ab":54.6,"p":"1B/OF","tm":"STL","ty":"Hitter","ti":5,"f26":345,"f25":318,"yoy":27,"h":"\u2014","v":6,"p25":3,"o25":"Ireland","p24":null,"g":3,"bl":4,"bh":6,"tg":""},{"r":114,"n":"Jonathan Aranda","ab":45.5,"p":"1B","tm":"TB","ty":"Hitter","ti":5,"f26":345,"f25":226,"yoy":119,"h":"\ud83d\udd34 HIGH","v":6,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":4,"bh":6,"tg":"\ud83c\udfaf TARGET"},{"r":115,"n":"Andrew Abbott","ab":67.2,"p":"SP","tm":"CIN","ty":"Pitcher","ti":5,"f26":360,"f25":410,"yoy":-50,"h":"\ud83d\udfe2 IRON","v":6,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":4,"bh":6,"tg":""},{"r":116,"n":"Mitch Keller","ab":66.3,"p":"SP","tm":"PIT","ty":"Pitcher","ti":5,"f26":359,"f25":319,"yoy":40,"h":"\ud83d\udfe2 IRON","v":6,"p25":1,"o25":"Cardinal and Gold","p24":10,"g":5,"bl":4,"bh":6,"tg":""},{"r":117,"n":"Ryan Weathers","ab":52.5,"p":"SP","tm":"NYY","ty":"Pitcher","ti":5,"f26":361,"f25":72,"yoy":289,"h":"\ud83d\udd34 HIGH","v":6,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":4,"bh":6,"tg":""},{"r":118,"n":"Riley Greene","ab":65.8,"p":"OF","tm":"DET","ty":"Hitter","ti":5,"f26":342,"f25":341,"yoy":1,"h":"\u2014","v":5,"p25":13,"o25":"Sofa Kings","p24":3,"g":-8,"bl":3,"bh":5,"tg":""},{"r":119,"n":"Luke Keaschall","ab":53.8,"p":"2B","tm":"MIN","ty":"Hitter","ti":5,"f26":342,"f25":156,"yoy":186,"h":"\ud83d\udd34 HIGH","v":5,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":3,"bh":5,"tg":"\ud83d\udccb FALLBACK"},{"r":120,"n":"Marcus Semien","ab":55.5,"p":"2B","tm":"NYM","ty":"Hitter","ti":5,"f26":342,"f25":285,"yoy":57,"h":"\u2014","v":5,"p25":9,"o25":"Cardinal and Gold","p24":33,"g":-4,"bl":3,"bh":5,"tg":""},{"r":121,"n":"Vinnie Pasquantino","ab":58.8,"p":"1B","tm":"KC","ty":"Hitter","ti":5,"f26":342,"f25":424,"yoy":-82,"h":"\ud83d\udfe1 MED","v":5,"p25":13,"o25":"Sofa Kings","p24":12,"g":-8,"bl":3,"bh":5,"tg":""},{"r":122,"n":"Spencer Steer","ab":58.5,"p":"1B/OF","tm":"CIN","ty":"Hitter","ti":5,"f26":340,"f25":293,"yoy":47,"h":"\u2014","v":5,"p25":8,"o25":"Sofa Kings","p24":13,"g":-3,"bl":3,"bh":5,"tg":""},{"r":123,"n":"Ozzie Albies","ab":53.9,"p":"2B","tm":"ATL","ty":"Hitter","ti":5,"f26":339,"f25":368,"yoy":-29,"h":"\ud83d\udfe1 MED","v":5,"p25":null,"o25":"undrafted","p24":24,"g":null,"bl":3,"bh":5,"tg":""},{"r":124,"n":"Bryce Miller","ab":57.4,"p":"SP","tm":"SEA","ty":"Pitcher","ti":5,"f26":357,"f25":106,"yoy":251,"h":"\ud83d\udfe1 MED","v":5,"p25":null,"o25":"undrafted","p24":4,"g":null,"bl":3,"bh":5,"tg":"\ud83d\udccb FALLBACK"},{"r":125,"n":"Chris Bassitt","ab":63.2,"p":"SP","tm":"BAL","ty":"Pitcher","ti":6,"f26":355,"f25":349,"yoy":6,"h":"\ud83d\udfe2 IRON","v":4,"p25":6,"o25":"Sarre","p24":10,"g":-2,"bl":3,"bh":4,"tg":"\ud83d\udccb FALLBACK"},{"r":126,"n":"Casey Mize","ab":62.2,"p":"SP","tm":"DET","ty":"Pitcher","ti":6,"f26":355,"f25":345,"yoy":10,"h":"\ud83d\udfe2 IRON","v":4,"p25":null,"o25":"undrafted","p24":3,"g":null,"bl":3,"bh":4,"tg":""},{"r":127,"n":"Reynaldo Lopez","ab":59.2,"p":"SP","tm":"ATL","ty":"Pitcher","ti":5,"f26":356,"f25":-1,"yoy":357,"h":"\ud83d\udd34 HIGH","v":4,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":3,"bh":4,"tg":""},{"r":128,"n":"Jorge Polanco","ab":61.7,"p":"2B","tm":"NYM","ty":"Hitter","ti":5,"f26":336,"f25":353,"yoy":-17,"h":"\ud83d\udfe1 MED","v":4,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":3,"bh":4,"tg":""},{"r":129,"n":"Andres Munoz","ab":50.8,"p":"RP","tm":"SEA","ty":"Pitcher","ti":6,"f26":355,"f25":353,"yoy":2,"h":"\ud83d\udfe2 IRON","v":4,"p25":12,"o25":"Cardinal and Gold","p24":null,"g":-8,"bl":3,"bh":4,"tg":"\ud83d\udccb FALLBACK"},{"r":130,"n":"Kyle Bradish","ab":66.3,"p":"SP","tm":"BAL","ty":"Pitcher","ti":6,"f26":354,"f25":102,"yoy":252,"h":"\ud83d\udd34 HIGH","v":4,"p25":null,"o25":"undrafted","p24":5,"g":null,"bl":3,"bh":4,"tg":""},{"r":131,"n":"Ramon Laureano","ab":53.1,"p":"OF","tm":"SD","ty":"Hitter","ti":5,"f26":334,"f25":303,"yoy":31,"h":"\ud83d\udfe1 MED","v":3,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":2,"bh":3,"tg":"\ud83d\udccb FALLBACK"},{"r":132,"n":"Bailey Ober","ab":63.5,"p":"SP","tm":"MIN","ty":"Pitcher","ti":6,"f26":351,"f25":225,"yoy":126,"h":"\u2014","v":3,"p25":null,"o25":"undrafted","p24":2,"g":null,"bl":2,"bh":3,"tg":""},{"r":133,"n":"Spencer Horwitz","ab":49.2,"p":"1B","tm":"PIT","ty":"Hitter","ti":5,"f26":333,"f25":228,"yoy":105,"h":"\ud83d\udfe1 MED","v":3,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":2,"bh":3,"tg":""},{"r":134,"n":"Jung Hoo Lee","ab":59.5,"p":"OF","tm":"SF","ty":"Hitter","ti":5,"f26":334,"f25":359,"yoy":-25,"h":"\ud83d\udfe2 IRON","v":3,"p25":1,"o25":"Cardinal and Gold","p24":3,"g":2,"bl":2,"bh":3,"tg":""},{"r":135,"n":"Trey Yesavage","ab":56.1,"p":"SP","tm":"TOR","ty":"Pitcher","ti":6,"f26":352,"f25":33,"yoy":319,"h":"\ud83d\udd34 HIGH","v":3,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":2,"bh":3,"tg":""},{"r":136,"n":"Tanner Bibee","ab":70.3,"p":"SP","tm":"CLE","ty":"Pitcher","ti":6,"f26":352,"f25":366,"yoy":-14,"h":"\ud83d\udfe2 IRON","v":3,"p25":12,"o25":"Austin Bats","p24":10,"g":-9,"bl":2,"bh":3,"tg":""},{"r":137,"n":"Trevor Story","ab":64.8,"p":"SS","tm":"BOS","ty":"Hitter","ti":6,"f26":330,"f25":370,"yoy":-40,"h":"\ud83d\udfe2 IRON","v":2,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":1,"bh":2,"tg":""},{"r":138,"n":"Ben Rice C,1B","ab":36.6,"p":"UTIL","tm":"NYY","ty":"Hitter","ti":5,"f26":331,"f25":328,"yoy":3,"h":"\u2014","v":2,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":2,"tg":""},{"r":139,"n":"Evan Carter","ab":49.5,"p":"OF","tm":"TEX","ty":"Hitter","ti":6,"f26":330,"f25":157,"yoy":173,"h":"\ud83d\udd34 HIGH","v":2,"p25":null,"o25":"undrafted","p24":13,"g":null,"bl":1,"bh":2,"tg":""},{"r":140,"n":"Andrew Benintendi","ab":48.5,"p":"OF","tm":"CHW","ty":"Hitter","ti":6,"f26":329,"f25":259,"yoy":70,"h":"\ud83d\udfe1 MED","v":2,"p25":1,"o25":"Ireland","p24":null,"g":1,"bl":1,"bh":2,"tg":""},{"r":141,"n":"Moises Ballesteros","ab":33.2,"p":"DH","tm":"CHC","ty":"Hitter","ti":6,"f26":329,"f25":47,"yoy":282,"h":"\ud83d\udd34 HIGH","v":2,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":2,"tg":"\ud83c\udfaf TARGET"},{"r":142,"n":"Carlos Correa 3B,SS","ab":60.9,"p":"3B/SS","tm":"HOU","ty":"Hitter","ti":6,"f26":329,"f25":240,"yoy":89,"h":"\u2014","v":2,"p25":4,"o25":"Sarre","p24":5,"g":-2,"bl":1,"bh":2,"tg":""},{"r":143,"n":"Nolan Arenado","ab":54.2,"p":"3B","tm":"ARI","ty":"Hitter","ti":6,"f26":329,"f25":232,"yoy":97,"h":"\ud83d\udfe1 MED","v":2,"p25":5,"o25":"Sarre","p24":11,"g":-3,"bl":1,"bh":2,"tg":""},{"r":144,"n":"Jack Leiter","ab":60.6,"p":"SP","tm":"TEX","ty":"Pitcher","ti":6,"f26":349,"f25":324,"yoy":25,"h":"\ud83d\udfe2 IRON","v":2,"p25":1,"o25":"Austin Bats","p24":null,"g":1,"bl":1,"bh":2,"tg":"\ud83d\udccb FALLBACK"},{"r":145,"n":"Ceddanne Rafaela 2B,OF","ab":44.7,"p":"UTIL","tm":"BOS","ty":"Hitter","ti":6,"f26":328,"f25":331,"yoy":-3,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":146,"n":"Austin Riley","ab":56.7,"p":"3B","tm":"ATL","ty":"Hitter","ti":6,"f26":328,"f25":171,"yoy":157,"h":"\ud83d\udfe1 MED","v":1,"p25":28,"o25":"Austin Bats","p24":26,"g":-27,"bl":1,"bh":1,"tg":""},{"r":147,"n":"Kerry Carpenter","ab":52.3,"p":"OF","tm":"DET","ty":"Hitter","ti":8,"f26":307,"f25":258,"yoy":49,"h":"\ud83d\udfe1 MED","v":1,"p25":3,"o25":"Cardinal and Gold","p24":4,"g":-2,"bl":1,"bh":1,"tg":""},{"r":148,"n":"Bryson Stott","ab":52.3,"p":"2B/SS","tm":"PHI","ty":"Hitter","ti":8,"f26":306,"f25":350,"yoy":-44,"h":"\u2014","v":1,"p25":5,"o25":"Sarre","p24":3,"g":-4,"bl":1,"bh":1,"tg":""},{"r":149,"n":"Willson Contreras","ab":53.9,"p":"1B/C","tm":"BOS","ty":"Hitter","ti":8,"f26":306,"f25":290,"yoy":16,"h":"\u2014","v":1,"p25":3,"o25":"Cardinal and Gold","p24":9,"g":-2,"bl":1,"bh":1,"tg":""},{"r":150,"n":"Noelvi Marte 3B,OF","ab":36.6,"p":"UTIL","tm":"CIN","ty":"Hitter","ti":8,"f26":305,"f25":199,"yoy":106,"h":"\ud83d\udfe1 MED","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":151,"n":"Jo Adell","ab":53.3,"p":"OF","tm":"LAA","ty":"Hitter","ti":8,"f26":304,"f25":308,"yoy":-4,"h":"\u2014","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":152,"n":"Adolis Garcia","ab":56.3,"p":"OF","tm":"PHI","ty":"Hitter","ti":8,"f26":304,"f25":262,"yoy":42,"h":"\u2014","v":1,"p25":7,"o25":"Ireland","p24":null,"g":-6,"bl":1,"bh":1,"tg":""},{"r":153,"n":"Teoscar Hernandez","ab":57.7,"p":"OF","tm":"LAD","ty":"Hitter","ti":8,"f26":302,"f25":290,"yoy":12,"h":"\u2014","v":1,"p25":null,"o25":"undrafted","p24":13,"g":null,"bl":1,"bh":1,"tg":""},{"r":154,"n":"Sal Stewart","ab":37.4,"p":"1B","tm":"CIN","ty":"Hitter","ti":8,"f26":301,"f25":35,"yoy":266,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":155,"n":"Ian Happ","ab":63.8,"p":"OF","tm":"CHC","ty":"Hitter","ti":8,"f26":301,"f25":356,"yoy":-55,"h":"\ud83d\udfe2 IRON","v":1,"p25":12,"o25":"MeShe","p24":4,"g":-11,"bl":1,"bh":1,"tg":""},{"r":156,"n":"Jonny DeLuca","ab":47.2,"p":"OF","tm":"TB","ty":"Hitter","ti":8,"f26":301,"f25":42,"yoy":259,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":157,"n":"Bryce Eldridge","ab":33.2,"p":"DH","tm":"SF","ty":"Hitter","ti":8,"f26":300,"f25":5,"yoy":295,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":158,"n":"Jose Caballero 2B,3B,SS,OF","ab":35.2,"p":"UTIL","tm":"NYY","ty":"Hitter","ti":8,"f26":300,"f25":263,"yoy":37,"h":"\ud83d\udfe1 MED","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":159,"n":"Dylan Crews","ab":53.9,"p":"OF","tm":"WAS","ty":"Hitter","ti":8,"f26":299,"f25":158,"yoy":141,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":160,"n":"Ernie Clement 1B,2B,3B,SS","ab":61.2,"p":"1B/2B/3B/SS","tm":"TOR","ty":"Hitter","ti":8,"f26":298,"f25":311,"yoy":-13,"h":"\ud83d\udfe2 IRON","v":1,"p25":1,"o25":"The Mike Uhlenkamp Experience","p24":null,"g":0,"bl":1,"bh":1,"tg":""},{"r":161,"n":"Addison Barger 3B,OF","ab":34.6,"p":"UTIL","tm":"TOR","ty":"Hitter","ti":8,"f26":298,"f25":255,"yoy":43,"h":"\ud83d\udfe1 MED","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":162,"n":"Owen Caissie","ab":45.1,"p":"OF","tm":"MIA","ty":"Hitter","ti":8,"f26":298,"f25":7,"yoy":291,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":163,"n":"Zach Cole","ab":50.7,"p":"OF","tm":"HOU","ty":"Hitter","ti":7,"f26":316,"f25":40,"yoy":276,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":164,"n":"Ivan Herrera","ab":42.5,"p":"C","tm":"STL","ty":"Hitter","ti":7,"f26":316,"f25":294,"yoy":22,"h":"\ud83d\udd34 HIGH","v":1,"p25":2,"o25":"Bushwood CC","p24":null,"g":-1,"bl":1,"bh":1,"tg":""},{"r":165,"n":"Brandon Nimmo","ab":66.4,"p":"OF","tm":"TEX","ty":"Hitter","ti":7,"f26":316,"f25":381,"yoy":-65,"h":"\ud83d\udfe2 IRON","v":1,"p25":2,"o25":"MeShe","p24":5,"g":-1,"bl":1,"bh":1,"tg":""},{"r":166,"n":"Justin Crawford","ab":50.8,"p":"OF","tm":"PHI","ty":"Hitter","ti":7,"f26":313,"f25":0,"yoy":313,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":167,"n":"Luis Garcia","ab":45.7,"p":"2B","tm":"WAS","ty":"Hitter","ti":7,"f26":312,"f25":302,"yoy":10,"h":"\u2014","v":1,"p25":11,"o25":"Austin Bats","p24":null,"g":-10,"bl":1,"bh":1,"tg":""},{"r":168,"n":"Nolan Schanuel","ab":46.2,"p":"1B","tm":"LAA","ty":"Hitter","ti":7,"f26":312,"f25":307,"yoy":5,"h":"\u2014","v":1,"p25":1,"o25":"The Mike Uhlenkamp Experience","p24":null,"g":0,"bl":1,"bh":1,"tg":""},{"r":169,"n":"Mike Trout","ab":55.0,"p":"OF","tm":"LAA","ty":"Hitter","ti":7,"f26":312,"f25":258,"yoy":54,"h":"\ud83d\udd34 HIGH","v":1,"p25":9,"o25":"The Mike Uhlenkamp Experience","p24":30,"g":-8,"bl":1,"bh":1,"tg":"\ud83d\udeab AVOID"},{"r":170,"n":"Cedric Mullins","ab":50.1,"p":"OF","tm":"TB","ty":"Hitter","ti":7,"f26":311,"f25":277,"yoy":34,"h":"\ud83d\udfe1 MED","v":1,"p25":10,"o25":"Ireland","p24":14,"g":-9,"bl":1,"bh":1,"tg":""},{"r":171,"n":"Alec Bohm","ab":66.4,"p":"1B/3B","tm":"PHI","ty":"Hitter","ti":7,"f26":311,"f25":250,"yoy":61,"h":"\ud83d\udfe1 MED","v":1,"p25":1,"o25":"The Mike Uhlenkamp Experience","p24":4,"g":0,"bl":1,"bh":1,"tg":""},{"r":172,"n":"Dansby Swanson","ab":49.2,"p":"SS","tm":"CHC","ty":"Hitter","ti":7,"f26":310,"f25":323,"yoy":-13,"h":"\ud83d\udfe2 IRON","v":1,"p25":9,"o25":"Sofa Kings","p24":5,"g":-8,"bl":1,"bh":1,"tg":""},{"r":173,"n":"William Contreras","ab":53.4,"p":"C","tm":"MIL","ty":"Hitter","ti":7,"f26":310,"f25":360,"yoy":-50,"h":"\ud83d\udfe2 IRON","v":1,"p25":14,"o25":"The Mike Uhlenkamp Experience","p24":null,"g":-13,"bl":1,"bh":1,"tg":""},{"r":174,"n":"Miguel Vargas 1B,3B","ab":31.3,"p":"UTIL","tm":"CHW","ty":"Hitter","ti":7,"f26":309,"f25":300,"yoy":9,"h":"\u2014","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":175,"n":"George Valera","ab":45.3,"p":"DH","tm":"CLE","ty":"Hitter","ti":7,"f26":309,"f25":23,"yoy":286,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":176,"n":"Max Muncy","ab":55.8,"p":"3B","tm":"LAD","ty":"Hitter","ti":7,"f26":309,"f25":239,"yoy":70,"h":"\ud83d\udfe1 MED","v":1,"p25":6,"o25":"MeShe","p24":null,"g":-5,"bl":1,"bh":1,"tg":""},{"r":177,"n":"Heliot Ramos","ab":59.3,"p":"OF","tm":"SF","ty":"Hitter","ti":8,"f26":307,"f25":309,"yoy":-2,"h":"\ud83d\udfe2 IRON","v":1,"p25":2,"o25":"Swing and a Miss 2020","p24":null,"g":-1,"bl":1,"bh":1,"tg":""},{"r":178,"n":"Tyler Freeman 2B,OF","ab":30.7,"p":"UTIL","tm":"COL","ty":"Hitter","ti":8,"f26":307,"f25":252,"yoy":55,"h":"\ud83d\udfe1 MED","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":179,"n":"Alejandro Kirk","ab":44.6,"p":"C","tm":"TOR","ty":"Hitter","ti":7,"f26":317,"f25":286,"yoy":31,"h":"\ud83d\udfe1 MED","v":1,"p25":1,"o25":"Bushwood CC","p24":1,"g":0,"bl":1,"bh":1,"tg":"\ud83c\udfaf TARGET"},{"r":180,"n":"Kazuma Okamoto","ab":50.6,"p":"3B","tm":"TOR","ty":"Hitter","ti":6,"f26":319,"f25":0,"yoy":319,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":181,"n":"Michael Harris","ab":60.1,"p":"OF","tm":"ATL","ty":"Hitter","ti":6,"f26":321,"f25":334,"yoy":-13,"h":"\ud83d\udfe2 IRON","v":1,"p25":21,"o25":"Ireland","p24":24,"g":-20,"bl":1,"bh":1,"tg":""},{"r":182,"n":"Will Smith","ab":41.1,"p":"C","tm":"LAD","ty":"Hitter","ti":6,"f26":322,"f25":280,"yoy":42,"h":"\ud83d\udfe1 MED","v":1,"p25":13,"o25":"MeShe","p24":15,"g":-12,"bl":1,"bh":1,"tg":""},{"r":183,"n":"Otto Lopez 2B,SS","ab":36.0,"p":"UTIL","tm":"MIA","ty":"Hitter","ti":6,"f26":325,"f25":323,"yoy":2,"h":"\u2014","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":184,"n":"Taylor Ward","ab":74.2,"p":"OF","tm":"BAL","ty":"Hitter","ti":6,"f26":325,"f25":370,"yoy":-45,"h":"\ud83d\udfe1 MED","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":185,"n":"Caleb Durbin","ab":57.5,"p":"2B/3B","tm":"BOS","ty":"Hitter","ti":6,"f26":326,"f25":323,"yoy":3,"h":"\ud83d\udd34 HIGH","v":1,"p25":1,"o25":"Cardinal and Gold","p24":null,"g":0,"bl":1,"bh":1,"tg":"\ud83c\udfaf TARGET"},{"r":186,"n":"Wilyer Abreu","ab":53.8,"p":"OF","tm":"BOS","ty":"Hitter","ti":6,"f26":326,"f25":241,"yoy":85,"h":"\ud83d\udfe1 MED","v":1,"p25":1,"o25":"Ireland","p24":null,"g":0,"bl":1,"bh":1,"tg":""},{"r":187,"n":"Brandon Lowe","ab":52.1,"p":"2B","tm":"PIT","ty":"Hitter","ti":6,"f26":327,"f25":286,"yoy":41,"h":"\ud83d\udfe1 MED","v":1,"p25":1,"o25":"Moneyball Dos","p24":2,"g":0,"bl":1,"bh":1,"tg":"\ud83c\udfaf TARGET"},{"r":188,"n":"Cade Horton","ab":61.3,"p":"SP","tm":"CHC","ty":"Pitcher","ti":6,"f26":348,"f25":305,"yoy":43,"h":"\ud83d\udd34 HIGH","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":"\ud83c\udfaf TARGET"},{"r":189,"n":"Grant Holmes","ab":57.4,"p":"RP/SP","tm":"ATL","ty":"Pitcher","ti":6,"f26":347,"f25":225,"yoy":122,"h":"\ud83d\udfe1 MED","v":1,"p25":4,"o25":"Cardinal and Gold","p24":null,"g":-3,"bl":1,"bh":1,"tg":""},{"r":190,"n":"Blake Snell","ab":71.0,"p":"SP","tm":"LAD","ty":"Pitcher","ti":6,"f26":347,"f25":175,"yoy":172,"h":"\ud83d\udd34 HIGH","v":1,"p25":26,"o25":"Bushwood CC","p24":22,"g":-25,"bl":1,"bh":1,"tg":"\ud83d\udeab AVOID"},{"r":191,"n":"Trevor Megill","ab":49.8,"p":"RP","tm":"MIL","ty":"Pitcher","ti":7,"f26":345,"f25":275,"yoy":70,"h":"\ud83d\udfe2 IRON","v":1,"p25":9,"o25":"Bushwood CC","p24":null,"g":-8,"bl":1,"bh":1,"tg":"\ud83d\udccb FALLBACK"},{"r":192,"n":"Grayson Rodriguez","ab":50.2,"p":"SP","tm":"LAA","ty":"Pitcher","ti":7,"f26":344,"f25":0,"yoy":344,"h":"\ud83d\udfe2 IRON","v":1,"p25":6,"o25":"Sofa Kings","p24":null,"g":-5,"bl":1,"bh":1,"tg":""},{"r":193,"n":"Robbie Ray","ab":69.3,"p":"SP","tm":"SF","ty":"Pitcher","ti":7,"f26":340,"f25":439,"yoy":-99,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":194,"n":"Aroldis Chapman","ab":49.9,"p":"RP","tm":"BOS","ty":"Pitcher","ti":7,"f26":339,"f25":380,"yoy":-41,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":"\ud83c\udfaf TARGET"},{"r":195,"n":"David Peterson","ab":62.6,"p":"RP","tm":"NYM","ty":"Pitcher","ti":7,"f26":338,"f25":332,"yoy":6,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":196,"n":"Spencer Arrighetti","ab":52.7,"p":"SP","tm":"HOU","ty":"Pitcher","ti":7,"f26":337,"f25":38,"yoy":299,"h":"\ud83d\udd34 HIGH","v":1,"p25":7,"o25":"Sarre","p24":null,"g":-6,"bl":1,"bh":1,"tg":""},{"r":197,"n":"Aaron Nola","ab":63.9,"p":"SP","tm":"PHI","ty":"Pitcher","ti":7,"f26":336,"f25":136,"yoy":200,"h":"\ud83d\udfe1 MED","v":1,"p25":28,"o25":"Moneyball Dos","p24":28,"g":-27,"bl":1,"bh":1,"tg":""},{"r":198,"n":"Luis Severino","ab":58.0,"p":"SP","tm":"ATH","ty":"Pitcher","ti":7,"f26":336,"f25":257,"yoy":79,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":1,"g":null,"bl":1,"bh":1,"tg":""},{"r":199,"n":"Matt Svanson","ab":49.5,"p":"RP","tm":"STL","ty":"Pitcher","ti":8,"f26":335,"f25":186,"yoy":149,"h":"\ud83d\udfe2 IRON","v":1,"p25":null,"o25":"undrafted","p24":null,"g":null,"bl":1,"bh":1,"tg":""},{"r":200,"n":"Zac Gallen","ab":71.0,"p":"SP","tm":"ARI","ty":"Pitcher","ti":8,"f26":335,"f25":364,"yoy":-29,"h":"\ud83d\udfe2 IRON","v":1,"p25":22,"o25":"The Mike Uhlenkamp Experience","p24":33,"g":-21,"bl":1,"bh":1,"tg":""}];
+const PLAYERS=RAW.map(p=>({rank:p.r,name:p.n,abScore:p.ab,pos:p.p,team:p.tm,type:p.ty,tier:p.ti,
+fpts2026:p.f26,fpts2025:p.f25,yoy:p.yoy,health:p.h,value:p.v,price2025:p.p25,
+owner2025:p.o25,price2024:p.p24,gap:p.g,bidLow:p.bl,bidHigh:p.bh,target:p.tg,
+drafted:false,draftPrice:null,draftedBy:''}));
+
+const KEEPERS=[
+{name:"Nico Hoerner",pos:"2B",team:"CHC",price:11,fpts:340,tier:5},
+{name:"CJ Abrams",pos:"SS",team:"WAS",price:5,fpts:375,tier:3},
+{name:"Joe Misirowski",pos:"SP",team:"MIL",price:5,fpts:350,tier:4}
+];
+const BUDGET=320,KEEPER_COST=21,AVAILABLE=299;
+const TEAMS=["Austin Bats","Bushwood CC","Cardinal and Gold","Ireland","MeShe","Moneyball Dos","Sarre","Sofa Kings","Swing and a Miss 2020","The Mike Uhlenkamp Experience"];
+const OPPONENTS=[
+{name:"Bushwood CC",style:"BALANCED, SMART",tendency:"Spreads money across 6+ players at $20+. Will bid up mid-tier targets.",exploit:"They tie up capital early. Your $1-5 targets should be available late."},
+{name:"Cardinal and Gold",style:"PITCHING WHALE",tendency:"50% of budget on pitching. Will drive up EVERY elite SP.",exploit:"Nominate SP you dont want early—let them overpay. Buy your SP after they drain budget."},
+{name:"Ireland",style:"AGGRESSIVE UPSIDE",tendency:"Pays premium for young positional upside. 33% on pitching.",exploit:"They overpay for name-brand SS/OF. Let them push prices on guys you dont need."},
+{name:"MeShe",style:"ELITE BAT + ARM",tendency:"Anchors with 1 stud hitter + 1 stud SP. Competes for top-tier bats.",exploit:"If they land Judge early, their SP budget shrinks. Target #2-3 SP after."},
+{name:"Moneyball Dos",style:"VALUE HUNTER ⚠️",tendency:"Smart drafter who finds late value. Spends on premium AND mines steals.",exploit:"Hard to exploit—they play the same game you do. Beat them with better intel."},
+{name:"Sarre",style:"PITCHING-HEAVY",tendency:"Stockpiles FAAB. Buys 3-4 SP aggressively, then stops spending.",exploit:"They compete with Cardinal and Gold on SP. Let both fight. Your SP targets slip."},
+{name:"Sofa Kings",style:"STAR-CHASER",tendency:"Spends $50 on one elite SS. Decent SP investment.",exploit:"They may chase elite SS again. Since you have Abrams locked, let them overpay."},
+{name:"Swing and a Miss",style:"STARS & SCRUBS",tendency:"Goes huge on 4-5 guys, then fills with $1 scrubs. Chases big names.",exploit:"NOMINATE their favorites early. They will bid up. Drains their budget fast."},
+{name:"Uhlenkamp Exp.",style:"OF CHASER",tendency:"Chases elite OF ceiling regardless of injury risk. Overpaid badly in 2025.",exploit:"Nominate injury-risk OF (Acuña, Robert). They may chase again. Free money."}
+];
+
+let state={tab:'tracker',search:'',posFilter:'ALL',typeFilter:'ALL',tierFilter:'ALL',
+targetFilter:'ALL',sortCol:'rank',sortDir:'asc',mySpent:0,myPitching:0,myHitting:0,
+myRoster:[],scenarioSlots:[{player:'',price:''}],showDrafted:true};
+
+function getAvail(){return AVAILABLE-state.mySpent}
+function getPoolValue(){return PLAYERS.filter(p=>!p.drafted).reduce((s,p)=>s+(p.value||0),0)}
+function getPoolCount(){return PLAYERS.filter(p=>!p.drafted).length}
+function getPoolByType(t){return PLAYERS.filter(p=>!p.drafted&&p.type===t)}
+function getInflation(){
+  const totalPool=getPoolValue();
+  const totalBudget=AVAILABLE*10; // 10 teams
+  const draftedValue=PLAYERS.filter(p=>p.drafted).reduce((s,p)=>s+(p.value||0),0);
+  const draftedSpend=PLAYERS.filter(p=>p.drafted).reduce((s,p)=>s+(p.draftPrice||0),0);
+  const remainBudget=totalBudget-draftedSpend;
+  const remainValue=totalPool;
+  if(remainValue===0)return 1;
+  return remainBudget/remainValue;
+}
+function getAdjustedValue(p){
+  const inf=getInflation();
+  return Math.round((p.value||0)*inf);
+}
+
+function draftPlayer(idx,price,team){
+  PLAYERS[idx].drafted=true;
+  PLAYERS[idx].draftPrice=price;
+  PLAYERS[idx].draftedBy=team||'Other';
+  if(team==='Austin Bats'){
+    state.mySpent+=price;
+    state.myRoster.push({...PLAYERS[idx],draftPrice:price});
+    if(PLAYERS[idx].type==='Pitcher')state.myPitching+=price;
+    else state.myHitting+=price;
+  }
+  render();
+}
+function undraftPlayer(idx){
+  const p=PLAYERS[idx];
+  if(p.draftedBy==='Austin Bats'){
+    state.mySpent-=p.draftPrice;
+    state.myRoster=state.myRoster.filter(r=>r.rank!==p.rank);
+    if(p.type==='Pitcher')state.myPitching-=p.draftPrice;
+    else state.myHitting-=p.draftPrice;
+  }
+  p.drafted=false;p.draftPrice=null;p.draftedBy='';
+  render();
+}
+
+function posClass(pos){
+  const p=pos.toLowerCase().split('/')[0].split(',')[0];
+  if(p.includes('sp'))return'pos-sp';if(p.includes('rp'))return'pos-rp';
+  if(p.includes('c')&&!p.includes('cf'))return'pos-c';if(p.includes('1b'))return'pos-1b';
+  if(p.includes('2b'))return'pos-2b';if(p.includes('3b'))return'pos-3b';
+  if(p.includes('ss'))return'pos-ss';if(p.includes('of'))return'pos-of';
+  if(p.includes('dh'))return'pos-dh';return'pos-util';
+}
+
+function getSorted(){
+  let list=[...PLAYERS];
+  if(!state.showDrafted)list=list.filter(p=>!p.drafted);
+  if(state.search){const s=state.search.toLowerCase();list=list.filter(p=>p.name.toLowerCase().includes(s)||p.team.toLowerCase().includes(s))}
+  if(state.posFilter!=='ALL')list=list.filter(p=>p.pos.includes(state.posFilter));
+  if(state.typeFilter!=='ALL')list=list.filter(p=>p.type===state.typeFilter);
+  if(state.tierFilter!=='ALL')list=list.filter(p=>p.tier===parseInt(state.tierFilter));
+  if(state.targetFilter==='TARGET')list=list.filter(p=>p.target.includes('TARGET'));
+  if(state.targetFilter==='AVOID')list=list.filter(p=>p.target.includes('AVOID'));
+  const col=state.sortCol;
+  const dir=state.sortDir==='asc'?1:-1;
+  list.sort((a,b)=>{
+    let va=a[col],vb=b[col];
+    if(typeof va==='string')return dir*va.localeCompare(vb);
+    return dir*((va||0)-(vb||0));
+  });
+  return list;
+}
+
+function renderTracker(){
+  const list=getSorted();
+  const inf=getInflation();
+  return `
+  <div class="summary-cards">
+    <div class="summary-card"><div class="sc-val val-gold">$${getAvail()}</div><div class="sc-label">BUDGET REMAINING</div></div>
+    <div class="summary-card"><div class="sc-val val-blue">${getPoolCount()}</div><div class="sc-label">PLAYERS AVAILABLE</div></div>
+    <div class="summary-card"><div class="sc-val val-green">$${getPoolValue()}</div><div class="sc-label">POOL VALUE LEFT</div></div>
+    <div class="summary-card"><div class="sc-val ${inf>1.1?'val-red':inf<0.9?'val-green':'val-blue'}">${inf.toFixed(2)}x</div><div class="sc-label">INFLATION RATE</div></div>
+    <div class="summary-card"><div class="sc-val val-green">$${state.myHitting}</div><div class="sc-label">MY HITTING $</div></div>
+    <div class="summary-card"><div class="sc-val val-blue">$${state.myPitching}</div><div class="sc-label">MY PITCHING $</div></div>
+  </div>
+  ${state.myRoster.length>0?`<div class="my-team"><h3>🏟 MY ROSTER (${state.myRoster.length+3} players, $${state.mySpent+21} committed)</h3>
+  <div class="my-team-grid">
+  ${KEEPERS.map(k=>`<div class="my-team-chip" style="border-color:var(--cyan)">🔒 ${k.name} (${k.pos})<span class="chip-price">$${k.price}</span></div>`).join('')}
+  ${state.myRoster.map(p=>`<div class="my-team-chip">${p.name} (${p.pos})<span class="chip-price">$${p.draftPrice}</span></div>`).join('')}
+  </div></div>`:''}
+  <div class="controls">
+    <input type="text" placeholder="🔍 Search player or team..." value="${state.search}" oninput="state.search=this.value;render()">
+    <select onchange="state.posFilter=this.value;render()">
+      <option value="ALL">All Pos</option>
+      ${['SP','RP','C','1B','2B','3B','SS','OF','DH','UTIL'].map(p=>`<option value="${p}" ${state.posFilter===p?'selected':''}>${p}</option>`).join('')}
+    </select>
+    <select onchange="state.typeFilter=this.value;render()">
+      <option value="ALL">All Types</option><option value="Hitter" ${state.typeFilter==='Hitter'?'selected':''}>Hitter</option><option value="Pitcher" ${state.typeFilter==='Pitcher'?'selected':''}>Pitcher</option>
+    </select>
+    <select onchange="state.tierFilter=this.value;render()">
+      <option value="ALL">All Tiers</option>
+      ${[1,2,3,4,5,6,7,8].map(t=>`<option value="${t}" ${state.tierFilter==t?'selected':''}>Tier ${t}</option>`).join('')}
+    </select>
+    <select onchange="state.targetFilter=this.value;render()">
+      <option value="ALL">All Players</option><option value="TARGET" ${state.targetFilter==='TARGET'?'selected':''}>🎯 Targets</option><option value="AVOID" ${state.targetFilter==='AVOID'?'selected':''}>🚫 Avoids</option>
+    </select>
+    <button class="${state.showDrafted?'':'active'}" onclick="state.showDrafted=!state.showDrafted;render()">${state.showDrafted?'Hide':'Show'} Drafted</button>
+    <span style="color:var(--dim);font-size:11px">${list.length} shown</span>
+  </div>
+  <div class="scroll-wrap">
+  <table>
+  <thead><tr>
+    <th onclick="toggleSort('rank')">#</th>
+    <th onclick="toggleSort('name')">Player</th>
+    <th onclick="toggleSort('abScore')">AB</th>
+    <th>Pos</th>
+    <th onclick="toggleSort('tier')">Tier</th>
+    <th onclick="toggleSort('fpts2026')">FPTS</th>
+    <th onclick="toggleSort('value')">Value</th>
+    <th>Adj$</th>
+    <th>Bid Range</th>
+    <th>Health</th>
+    <th>2025$</th>
+    <th>2025 Owner</th>
+    <th>Gap</th>
+    <th>Draft</th>
+  </tr></thead>
+  <tbody>
+  ${list.map((p,i)=>{
+    const idx=PLAYERS.indexOf(p);
+    const adj=getAdjustedValue(p);
+    const rowClass=p.drafted?'drafted':p.target.includes('TARGET')?'target':p.target.includes('AVOID')?'avoid':'';
+    return `<tr class="${rowClass}">
+      <td>${p.rank}</td>
+      <td><strong>${p.name}</strong> <span style="color:var(--dim);font-size:10px">${p.team}</span>
+        ${p.target.includes('TARGET')?'<span style="color:var(--target);font-size:10px"> 🎯</span>':''}
+        ${p.target.includes('AVOID')?'<span style="color:var(--avoid);font-size:10px"> 🚫</span>':''}
+      </td>
+      <td style="color:var(--gold)">${p.abScore}</td>
+      <td><span class="pos-tag ${posClass(p.pos)}">${p.pos}</span></td>
+      <td><span class="tier-badge tier-${p.tier}">T${p.tier}</span></td>
+      <td>${p.fpts2026}</td>
+      <td style="color:var(--green)">$${p.value||0}</td>
+      <td style="color:${adj>(p.value||0)?'var(--red)':adj<(p.value||0)?'var(--green)':'var(--dim)'}">$${adj}</td>
+      <td style="color:var(--cyan)">${p.bidLow?'$'+p.bidLow+'-$'+p.bidHigh:'—'}</td>
+      <td>${p.health}</td>
+      <td>${p.price2025!=null?'$'+p.price2025:'—'}</td>
+      <td style="color:var(--dim);font-size:11px">${p.owner2025}</td>
+      <td style="color:${p.gap>0?'var(--green)':p.gap<0?'var(--red)':'var(--dim)'}">${p.gap!=null?(p.gap>0?'+':'')+p.gap:'—'}</td>
+      <td>${p.drafted?
+        `<span style="color:var(--dim)">$${p.draftPrice} → ${p.draftedBy}</span> <button class="btn-draft btn-undraft" onclick="undraftPlayer(${idx})">↩</button>`:
+        `<input class="price-input" id="price_${idx}" placeholder="$" type="number" min="1" max="320">
+         <select id="team_${idx}" style="background:#0a0a15;border:1px solid var(--border);color:var(--text);padding:2px;border-radius:3px;font-size:11px;max-width:100px">
+           ${TEAMS.map(t=>`<option value="${t}">${t.substring(0,12)}</option>`).join('')}
+         </select>
+         <button class="btn-draft" onclick="var pr=parseInt(document.getElementById('price_${idx}').value);var tm=document.getElementById('team_${idx}').value;if(pr>0)draftPlayer(${idx},pr,tm)">Draft</button>`
+      }</td>
+    </tr>`;
+  }).join('')}
+  </tbody></table></div>`;
+}
+
+function renderBudget(){
+  const hitSpent=state.myHitting;
+  const pitSpent=state.myPitching;
+  const hitBudgetLow=160,hitBudgetHigh=175;
+  const pitBudgetLow=80,pitBudgetHigh=100;
+  const faabTarget=40;
+  const hitRemain=hitBudgetHigh-hitSpent;
+  const pitRemain=pitBudgetHigh-pitSpent;
+  
+  const hitRoster=state.myRoster.filter(p=>p.type==='Hitter');
+  const pitRoster=state.myRoster.filter(p=>p.type==='Pitcher');
+  
+  const slots=[
+    {cat:'HITTING',items:[
+      {slot:'🔒 2B Hoerner',range:'$11 (keeper)',actual:11,locked:true},
+      {slot:'🔒 SS Abrams',range:'$5 (keeper)',actual:5,locked:true},
+      {slot:'Elite Hitter #1 (OF/DH)',range:'$45-55',actual:hitRoster.find(p=>(p.draftPrice||0)>=40)?.draftPrice||0},
+      {slot:'Mid Hitter #2 (1B/3B)',range:'$20-30',actual:hitRoster.filter(p=>(p.draftPrice||0)>=15&&(p.draftPrice||0)<40)[0]?.draftPrice||0},
+      {slot:'Mid Hitter #3 (OF)',range:'$12-18',actual:0},
+      {slot:'Value OF #4',range:'$5-10',actual:0},
+      {slot:'Catcher',range:'$3-8',actual:hitRoster.find(p=>p.pos.includes('C')&&!p.pos.includes('CF'))?.draftPrice||0},
+      {slot:'DH/UTIL',range:'$3-8',actual:0},
+      {slot:'Bench Hitters (×4)',range:'$1 each',actual:0}
+    ]},
+    {cat:'PITCHING',items:[
+      {slot:'🔒 SP Misirowski',range:'$5 (keeper)',actual:5,locked:true},
+      {slot:'Elite SP #1',range:'$25-35',actual:pitRoster.find(p=>(p.draftPrice||0)>=20)?.draftPrice||0},
+      {slot:'Mid SP #2',range:'$12-20',actual:0},
+      {slot:'Mid SP #3',range:'$8-15',actual:0},
+      {slot:'Value SP #4',range:'$3-8',actual:0},
+      {slot:'Closer/RP',range:'$3-10',actual:0},
+      {slot:'IL Stashes',range:'$5-12 total',actual:0},
+      {slot:'Bench SP (×3)',range:'$1 each',actual:0}
+    ]}
+  ];
+  
+  return `
+  <div class="summary-cards">
+    <div class="summary-card"><div class="sc-val val-gold">$${getAvail()}</div><div class="sc-label">REMAINING</div></div>
+    <div class="summary-card"><div class="sc-val val-green">$${hitSpent+16}</div><div class="sc-label">HITTING SPENT (target $160-175)</div></div>
+    <div class="summary-card"><div class="sc-val val-blue">$${pitSpent+5}</div><div class="sc-label">PITCHING SPENT (target $80-100)</div></div>
+    <div class="summary-card"><div class="sc-val ${getAvail()>=35?'val-green':'val-red'}">$${Math.max(0,getAvail()-state.myRoster.reduce((s,r)=>s,0))}</div><div class="sc-label">FAAB RESERVE (target $35-50)</div></div>
+  </div>
+  <div class="alloc-grid">
+  ${slots.map(cat=>`
+    <div class="alloc-section">
+      <h3>${cat.cat}</h3>
+      ${cat.items.map(item=>`
+        <div class="alloc-row">
+          <span class="slot">${item.slot}</span>
+          <span class="range">${item.range}</span>
+          <span class="actual">${item.actual>0?'$'+item.actual:(item.locked?'✅':'—')}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('')}
+  </div>
+  <div class="alloc-section" style="margin-top:12px">
+    <h3>💡 BUDGET GUIDANCE</h3>
+    <div style="padding:8px;color:var(--dim);line-height:1.6">
+      ${hitSpent+16<100?'<div style="color:var(--green)">✅ Hitting budget has room. You can still land an elite bat ($45-55) and a mid-tier ($20-30).</div>':''}
+      ${hitSpent+16>=160?'<div style="color:var(--orange)">⚠️ Hitting budget nearly full. Pivot to $1-5 value plays for remaining OF/UTIL slots.</div>':''}
+      ${pitSpent+5<30?'<div style="color:var(--green)">✅ Pitching budget wide open. Remember: invest $60-80 MORE in pitching this year vs 2025.</div>':''}
+      ${pitSpent+5>=80?'<div style="color:var(--orange)">⚠️ Pitching budget tightening. Fill remaining SP slots with $1-3 dart throws.</div>':''}
+      ${getAvail()<35?'<div style="color:var(--red)">🚨 FAAB reserve below $35 target. Stop bidding aggressively — you need waiver wire ammo.</div>':''}
+      ${getAvail()>80?'<div style="color:var(--cyan)">💰 Lots of dry powder remaining. Dont be afraid to bid up your targets — you have the budget advantage.</div>':''}
+      <div style="margin-top:8px;color:var(--gold)">Inflation: ${getInflation().toFixed(2)}x — ${getInflation()>1.05?'prices are running HOT, be patient on mid-tier':'prices are COLD, be aggressive on your targets'}</div>
+    </div>
+  </div>`;
+}
+
+function renderScenario(){
+  return `
+  <div class="scenario-box">
+    <h3>🔄 SCENARIO PLANNER — "If X goes for $Y, should I..."</h3>
+    <div id="scenario-inputs">
+      <div class="scenario-row">
+        <label>If player:</label>
+        <select id="sc-player1" style="width:200px" onchange="runScenario()">
+          <option value="">Select player...</option>
+          ${PLAYERS.filter(p=>!p.drafted&&p.tier<=4).map(p=>`<option value="${p.rank}">${p.name} ($${p.value})</option>`).join('')}
+        </select>
+        <label>goes for $</label>
+        <input id="sc-price1" type="number" min="1" max="320" style="width:60px" onchange="runScenario()">
+      </div>
+      <div class="scenario-row">
+        <label>Then should I buy:</label>
+        <select id="sc-player2" style="width:200px" onchange="runScenario()">
+          <option value="">Select alternative...</option>
+          ${PLAYERS.filter(p=>!p.drafted&&p.tier<=6).map(p=>`<option value="${p.rank}">${p.name} ($${p.value})</option>`).join('')}
+        </select>
+        <label>at $</label>
+        <input id="sc-price2" type="number" min="1" max="320" style="width:60px" onchange="runScenario()">
+      </div>
+      <div class="scenario-row">
+        <label>Or pivot to:</label>
+        <select id="sc-player3" style="width:200px" onchange="runScenario()">
+          <option value="">Select pivot...</option>
+          ${PLAYERS.filter(p=>!p.drafted&&p.tier<=6).map(p=>`<option value="${p.rank}">${p.name} ($${p.value})</option>`).join('')}
+        </select>
+        <label>at $</label>
+        <input id="sc-price3" type="number" min="1" max="320" style="width:60px" onchange="runScenario()">
+        <label>+ </label>
+        <select id="sc-player4" style="width:200px" onchange="runScenario()">
+          <option value="">Select combo...</option>
+          ${PLAYERS.filter(p=>!p.drafted&&p.tier<=7).map(p=>`<option value="${p.rank}">${p.name} ($${p.value})</option>`).join('')}
+        </select>
+        <label>at $</label>
+        <input id="sc-price4" type="number" min="1" max="320" style="width:60px" onchange="runScenario()">
+      </div>
+    </div>
+    <div id="scenario-output"></div>
+  </div>
+  <div class="scenario-box">
+    <h3>📋 PRE-BUILT SCENARIOS</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="controls button" style="background:#1a1a2e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px" onclick="loadScenario('soto55')">Soto $55 → Tucker $45 vs Springer $15 + Caminero $25</button>
+      <button class="controls button" style="background:#1a1a2e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px" onclick="loadScenario('skubal90')">Skubal $90+ → Pivot to Woo + Eovaldi</button>
+      <button class="controls button" style="background:#1a1a2e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px" onclick="loadScenario('judge70')">Judge $70+ → Ramirez $55 + Springer $15</button>
+      <button class="controls button" style="background:#1a1a2e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px" onclick="loadScenario('value')">All-Value: Springer + Burleson + Rogers + Gore</button>
+    </div>
+  </div>
+  <div class="scenario-box">
+    <h3>📊 FPTS-PER-DOLLAR EFFICIENCY BOARD (Top 30 undrafted)</h3>
+    <table>
+      <thead><tr><th>Player</th><th>Pos</th><th>FPTS</th><th>Value</th><th>FPTS/$</th><th>AB Score</th><th>Tier</th></tr></thead>
+      <tbody>
+      ${PLAYERS.filter(p=>!p.drafted&&p.value>0).sort((a,b)=>(b.fpts2026/(b.value||1))-(a.fpts2026/(a.value||1))).slice(0,30).map(p=>`
+        <tr class="${p.target.includes('TARGET')?'target':''}">
+          <td><strong>${p.name}</strong> <span style="color:var(--dim)">${p.team}</span>${p.target.includes('TARGET')?' 🎯':''}</td>
+          <td><span class="pos-tag ${posClass(p.pos)}">${p.pos}</span></td>
+          <td>${p.fpts2026}</td>
+          <td style="color:var(--green)">$${p.value}</td>
+          <td style="color:var(--gold)">${(p.fpts2026/(p.value||1)).toFixed(1)}</td>
+          <td>${p.abScore}</td>
+          <td><span class="tier-badge tier-${p.tier}">T${p.tier}</span></td>
+        </tr>
+      `).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function loadScenario(key){
+  const find=(name)=>PLAYERS.find(p=>p.name.toLowerCase().includes(name.toLowerCase()));
+  let s1,p1,s2,p2,s3,p3,s4,p4;
+  if(key==='soto55'){
+    s1=find('Juan Soto');p1=55;s2=find('Kyle Tucker');p2=45;s3=find('George Springer');p3=15;s4=find('Junior Caminero');p4=25;
+  }else if(key==='skubal90'){
+    s1=find('Tarik Skubal');p1=90;s2=find('Bryan Woo');p2=55;s3=find('Bryan Woo');p3=40;s4=find('Nathan Eovaldi');p4=25;
+  }else if(key==='judge70'){
+    s1=find('Aaron Judge');p1=70;s2=find('Jose Ramirez');p2=55;s3=find('Jose Ramirez');p3=50;s4=find('George Springer');p4=15;
+  }else if(key==='value'){
+    s1=find('Juan Soto');p1=65;s2=find('George Springer');p2=15;s3=find('George Springer');p3=12;s4=find('Alec Burleson');p4=8;
+  }
+  if(s1){document.getElementById('sc-player1').value=s1.rank;document.getElementById('sc-price1').value=p1}
+  if(s2){document.getElementById('sc-player2').value=s2.rank;document.getElementById('sc-price2').value=p2}
+  if(s3){document.getElementById('sc-player3').value=s3.rank;document.getElementById('sc-price3').value=p3}
+  if(s4){document.getElementById('sc-player4').value=s4.rank;document.getElementById('sc-price4').value=p4}
+  runScenario();
+}
+
+function runScenario(){
+  const out=document.getElementById('scenario-output');
+  if(!out)return;
+  const g=id=>({player:PLAYERS.find(p=>p.rank==document.getElementById(id)?.value),price:parseInt(document.getElementById(id.replace('player','price'))?.value)||0});
+  const s1=g('sc-player1'),s2=g('sc-player2'),s3=g('sc-player3'),s4=g('sc-player4');
+  
+  if(!s1.player||!s1.price){out.innerHTML='';return}
+  
+  let html='<div style="margin-top:12px">';
+  
+  // Option A: buy player2 at price2
+  if(s2.player&&s2.price){
+    const fpts_a=s2.player.fpts2026;
+    const cost_a=s2.price;
+    const fptsPerDollar_a=(fpts_a/cost_a).toFixed(1);
+    const budgetAfter_a=getAvail()-cost_a;
+    const overpay_a=cost_a-(s2.player.value||0);
+    const cls_a=overpay_a>10?'scenario-warning':'scenario-result';
+    html+=`<div class="${cls_a}">
+      <h4>OPTION A: ${s2.player.name} at $${cost_a}</h4>
+      <div>FPTS: ${fpts_a} | FPTS/$: ${fptsPerDollar_a} | ${overpay_a>0?'Overpay: $'+overpay_a:'Value: $'+Math.abs(overpay_a)} vs model</div>
+      <div>Budget after: $${budgetAfter_a} | AB Score: ${s2.player.abScore} | Health: ${s2.player.health}</div>
+      ${overpay_a>15?'<div style="color:var(--red)">⚠️ Significant overpay risk. Make sure youre not chasing.</div>':''}
+      ${budgetAfter_a<35?'<div style="color:var(--red)">⚠️ FAAB reserve falls below $35 target.</div>':''}
+    </div>`;
+  }
+  
+  // Option B: pivot to player3 + player4
+  if(s3.player&&s3.price){
+    const fpts_b=s3.player.fpts2026+(s4.player?s4.player.fpts2026:0);
+    const cost_b=s3.price+(s4.price||0);
+    const fptsPerDollar_b=(fpts_b/cost_b).toFixed(1);
+    const budgetAfter_b=getAvail()-cost_b;
+    const cls_b=budgetAfter_b<35?'scenario-warning':'scenario-result';
+    html+=`<div class="${cls_b}" style="margin-top:8px">
+      <h4>OPTION B: ${s3.player.name} $${s3.price}${s4.player?' + '+s4.player.name+' $'+s4.price:''}</h4>
+      <div>Combined FPTS: ${fpts_b} | FPTS/$: ${fptsPerDollar_b} | Cost: $${cost_b}</div>
+      <div>Budget after: $${budgetAfter_b} | You get TWO roster spots filled</div>
+      ${fpts_b>(s2.player?s2.player.fpts2026:0)?'<div style="color:var(--green)">✅ Higher combined FPTS output.</div>':'<div style="color:var(--orange)">⚠️ Lower combined FPTS — but more roster flexibility.</div>'}
+      ${budgetAfter_b>budgetAfter_a?'<div style="color:var(--green)">✅ More budget remaining for other positions.</div>':''}
+    </div>`;
+    
+    // Comparison
+    if(s2.player&&s2.price){
+      const diff=fpts_b-s2.player.fpts2026;
+      const costDiff=cost_b-s2.price;
+      html+=`<div class="scenario-result" style="margin-top:8px;background:#1a1a2a;border-color:var(--gold)">
+        <h4 style="color:var(--gold)">📊 VERDICT</h4>
+        <div>FPTS difference: ${diff>0?'+':''}${diff} | Cost difference: ${costDiff>0?'+$':'$'}${costDiff}</div>
+        <div style="margin-top:4px;color:${diff>0&&costDiff<=0?'var(--green)':diff>0&&costDiff>0?'var(--cyan)':'var(--orange)'}">
+          ${diff>0&&costDiff<=0?'🎯 OPTION B WINS: More FPTS for less money. Easy call.':''}
+          ${diff>0&&costDiff>0?'📈 OPTION B has higher FPTS but costs more. Worth it if budget allows.':''}
+          ${diff<=0&&costDiff<0?'💰 OPTION B saves money but sacrifices FPTS. Good if you need FAAB.':''}
+          ${diff<=0&&costDiff>=0?'⚠️ OPTION A looks better on both cost and production.':''}
+        </div>
+      </div>`;
+    }
+  }
+  
+  html+='</div>';
+  out.innerHTML=html;
+  var budgetAfter_a=0; // reset for scope
+}
+
+function renderIntel(){
+  return `
+  <div class="alloc-section" style="margin-bottom:12px">
+    <h3>🎯 NOMINATION STRATEGY</h3>
+    <ul class="nom-list">
+      <li class="phase">EARLY — Drain opponent budgets:</li>
+      <li>1. <strong>Elly De La Cruz</strong> — Swing/Miss spent $50 last year. They will push $50+ again.</li>
+      <li>2. <strong>Ronald Acuña Jr.</strong> — Uhlenkamp chases injured OF. Let them overpay.</li>
+      <li>3. <strong>Tarik Skubal</strong> — Cardinal and Gold spent $42. Let them fight MeShe/Sarre.</li>
+      <li>4. <strong>Luis Robert Jr.</strong> — Name value exceeds projection. Someone will overpay.</li>
+      <li>5. <strong>Yordan Alvarez</strong> — Uhlenkamp paid $44 for 110 FPTS. May chase redemption.</li>
+      <li class="phase">MID — Drain pitching budgets:</li>
+      <li>Nominate Glasnow, McClanahan, Snell (injury risks someone overpays for).</li>
+      <li>Nominate catchers: Raleigh, Contreras. Someone always overpays for scarce C.</li>
+      <li class="phase">LATE — Your targets (prices should be lower):</li>
+      <li>Hitters: Springer, Burleson, Suzuki, Aranda</li>
+      <li>SP: Rogers, Sheehan, Gore, Horton</li>
+      <li>IL Stashes: Wheeler, Cole, Rodón</li>
+    </ul>
+  </div>
+  <div class="intel-grid">
+  ${OPPONENTS.map(o=>`
+    <div class="intel-card">
+      <h3>${o.name} — ${o.style}</h3>
+      <div class="tendency">📋 ${o.tendency}</div>
+      <div class="exploit">💡 ${o.exploit}</div>
+    </div>
+  `).join('')}
+  </div>
+  <div class="alloc-section" style="margin-top:12px">
+    <h3>🔮 KEEPER VALUE TARGETS (for 2027)</h3>
+    <div style="padding:8px;line-height:1.8">
+      <div><strong>Jonathan Aranda</strong> (1B, TB) — 345 FPTS proj. If $3-5, elite keeper candidate.</div>
+      <div><strong>Cade Horton</strong> (SP, CHC) — 348 FPTS proj. Breakout last year. $5-8 = keeper gold.</div>
+      <div><strong>Caleb Durbin</strong> (3B, BOS) — 326 FPTS proj. $1 last year, 323 FPTS. Fenway boost.</div>
+      <div><strong>Brandon Lowe</strong> (2B, PIT) — 327 FPTS proj. 31 HR last year. $5-8, stash.</div>
+      <div><strong>Daniel Palencia</strong> (RP, CHC) — if he closes, $1 = RP keeper.</div>
+    </div>
+  </div>`;
+}
+
+function toggleSort(col){
+  if(state.sortCol===col)state.sortDir=state.sortDir==='asc'?'desc':'asc';
+  else{state.sortCol=col;state.sortDir=col==='rank'?'asc':'desc'}
+  render();
+}
+
+function render(){
+  const tabs=['tracker','budget','scenario','intel'];
+  const labels=['📋 Draft Tracker','💰 Budget Model','🔄 Scenarios','🕵️ Intel & Nominations'];
+  let html=`
+  <header>
+    <h1>⚾ DEDEAUX FIELD 4.0 — DRAFT COMMAND CENTER</h1>
+    <div class="budget-bar">
+      <div class="stat"><span class="label">Budget:</span><span class="val val-gold">$${getAvail()}</span></div>
+      <div class="stat"><span class="label">Spent:</span><span class="val val-red">$${state.mySpent}</span></div>
+      <div class="stat"><span class="label">Roster:</span><span class="val val-blue">${state.myRoster.length+3}/${23}</span></div>
+      <div class="stat"><span class="label">Pool:</span><span class="val val-green">${getPoolCount()}</span></div>
+      <div class="stat"><span class="label">Inflation:</span><span class="val ${getInflation()>1.05?'val-red':'val-green'}">${getInflation().toFixed(2)}x</span></div>
+    </div>
+  </header>
+  <div class="tabs">
+    ${tabs.map((t,i)=>`<div class="tab ${state.tab===t?'active':''}" onclick="state.tab='${t}';render()">${labels[i]}</div>`).join('')}
+  </div>
+  <div class="panel">`;
+  
+  if(state.tab==='tracker')html+=renderTracker();
+  else if(state.tab==='budget')html+=renderBudget();
+  else if(state.tab==='scenario')html+=renderScenario();
+  else if(state.tab==='intel')html+=renderIntel();
+  
+  html+='</div>';
+  document.getElementById('root').innerHTML=html;
+}
+
+render();
+</script>
+</body>
+</html>

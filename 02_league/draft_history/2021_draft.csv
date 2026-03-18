@@ -1,0 +1,314 @@
+Austin Bats
+Pos,Player,Salary,Elig,
+SP,Trevor Bauer SP | LAD,62,SP
+SP,Blake Snell SP | LAD ,36,SP
+3B,Manny Machado 3B | SD,39,"3B,DH"
+RP,Michael Lorenzen SP | COL,4,RP
+1B,Josh Bell 1B | MIN,17,"1B,DH"
+SP,Marcus Stroman SP | NYY,16,SP
+RES,Jameson Taillon SP | CHC,8,SP
+SS,Dansby Swanson SS | CHC,16,"DH,SS"
+OF,Ramon Laureano OF | SD ,9,"DH,OF"
+DH,"Shohei Ohtani DH,SP | LAD ",10,"DH,SP"
+OF,Joey Gallo 1B | CHW,2,"DH,OF"
+RES,Yusei Kikuchi SP | LAA,2,SP
+RES,Brian Anderson OF | ATL,2,"3B,DH"
+RES,Dylan Bundy SP | NYM,5,SP
+RES,Sandy Alcantara SP | MIA ,10,SP
+RES,Kyle Lewis DH | ARI,10,"DH,OF"
+RES,Cristian Javier SP | HOU ,5,SP
+C,James McCann C | ARI ,7,"C,DH"
+RES,Triston McKenzie RP | SD ,5,SP
+RP,"Jordan Hicks SP,RP | CHW",5,RP
+RES,Jordan Romano RP | LAA ,4,RP
+RES,"Andres Gimenez 2B,SS | TOR",3,"2B,DH,SS"
+RES,Amir Garrett RP | TOR,3,RP
+RES,Miguel Sano 3B | LAA,1,"1B,DH"
+Redskins
+Pos,Player,Salary,Elig,
+SP,Clayton Kershaw SP | LAD,48,SP
+SP,Jose Urquidy RP | PIT ,16,SP
+SP,Hyun-Jin Ryu SP | TOR,27,SP
+SP,Dallas Keuchel SP | MIL,18,SP
+SP,Kyle Hendricks SP | LAA,25,SP
+C,Willson Contreras 1B | BOS,15,"C,DH"
+RP,Freddy Peralta SP | NYM ,4,RP
+DH,Josh Donaldson 3B | ,6,"3B,DH"
+OF,Byron Buxton OF | MIN ,11,"DH,OF"
+RES,Zac Gallen SP | ARI ,7,SP
+RES,Noah Syndergaard SP | CLE,7,SP
+RES,Merrill Kelly SP | ARI ,7,SP
+RP,Trevor Rosenthal RP | DET,8,RP
+OF,Anthony Santander OF | TOR ,6,"DH,OF"
+RES,"Willi Castro 2B,3B,OF | COL",1,"DH,SS"
+RES,Elvis Andrus 2B | ,6,"DH,SS"
+RES,Luke Voit 1B | NYM,8,"1B,DH"
+RES,Alex Dickerson DH | ,2,"DH,OF"
+RES,Zach Eflin SP | BAL ,3,SP
+RES,"Ryan Yarbrough SP,RP | NYY ",6,SP
+RES,Jean Segura 3B | ,4,"2B,3B,DH"
+RES,"Miguel Rojas 2B,3B,SS | LAD",2,"DH,SS"
+RES,Willians Astudillo 3B | ,1,"C,DH"
+Bushwood CC
+Pos,Player,Salary,Elig,
+OF,Mike Trout OF | LAA,75,"DH,OF"
+SP,Stephen Strasburg SP | ,39,SP
+3B,Anthony Rendon 3B | LAA ,44,"3B,DH"
+OF,Charlie Blackmon RF | ,23,"DH,OF"
+SP,Ian Anderson RP | ATL ,15,SP
+SP,Chris Archer SP | ,8,SP
+C,Gary Sanchez C | MIL,7,"C,DH"
+DH,Matt Chapman 3B | SF ,10,"3B,DH"
+RP,Joe Ross RP | ARI,3,RP
+RES,Chris Bassitt SP | BAL,13,SP
+1B,Joey Votto 1B | TOR,3,"1B,DH"
+RP,Jose Quintana SP | COL,7,RP
+RES,Madison Bumgarner SP | ,6,SP
+RES,Raisel Iglesias RP | ATL ,6,RP
+RES,Trey Mancini 1B | LAA ,7,"DH,OF"
+RES,Carson Kelly C | CHC,2,"C,DH"
+RES,Michael Pineda SP | ,3,SP
+RES,Tony Gonsolin SP | LAD ,4,SP
+RES,Ian Happ OF | CHC,7,"DH,OF"
+RES,Craig Kimbrel RP | NYM ,4,RP
+RES,Yadier Molina C | ,2,"C,DH"
+RES,Corey Dickerson LF | ,1,"DH,OF"
+RES,"Jose Iglesias 2B,3B,SS | SD ",1,"DH,SS"
+Sofa Kings
+Pos,Player,Salary,Elig,
+OF,Bryce Harper 1B | PHI,40,"DH,OF"
+SS,Francisco Lindor SS | NYM ,43,"DH,SS"
+3B,Jose Ramirez 3B | CLE ,61,"3B,DH"
+DH,Adalberto Mondesi SS | BOS,25,"DH,SS"
+SP,Corbin Burnes SP | ARI ,27,SP
+OF,Tommy Pham OF | PIT,11,"DH,OF"
+RES,Ke'Bryan Hayes 3B | CIN,9,"3B,DH"
+RES,Jake Cronenworth 2B | SD,6,"2B,DH"
+1B,Carlos Santana 1B | ARI,8,"1B,DH"
+OF,Jesse Winker DH | NYM,5,"DH,OF"
+SP,Matthew Boyd SP | CHC ,5,SP
+SP,Robbie Ray SP | SF ,3,SP
+C,Sean Murphy C | ATL ,5,"C,DH"
+RES,"Taijuan Walker SP,RP | PHI",2,SP
+RP,Rafael Montero RP | NYY ,3,RP
+RES,Wil Myers RF | ,2,"DH,OF"
+RES,Joc Pederson DH | TEX ,1,"DH,OF"
+RP,Greg Holland RP | ,1,RP
+RES,Griffin Canning SP | SD ,1,SP
+RES,Ross Stripling SP | KC,1,SP
+RES,Victor Robles OF | SEA ,1,"DH,OF"
+RES,"Jonathan India 2B,3B,OF | KC ",1,"3B,DH"
+RES,A.J. Pollock LF | ,1,"DH,OF"
+RES,Daniel Bard RP | COL,1,RP
+RES,David Price RP | ,1,SP
+Moneyball Dos
+Pos,Player,Salary,Elig,
+OF,Mookie Betts SS | LAD ,71,"DH,OF"
+OF,Juan Soto OF | NYM,67,"DH,OF"
+C,"Salvador Perez C,1B | KC",5,"C,DH"
+1B,Anthony Rizzo 1B | NYY,27,"1B,DH"
+DH,Starling Marte DH | KC,26,"DH,OF"
+SP,Kevin Gausman SP | TOR ,7,SP
+SP,James Paxton SP | BOS,13,SP
+3B,Alec Bohm 3B | PHI,5,"3B,DH"
+SP,Eduardo Rodriguez SP | ARI,10,SP
+SP,Julio Urias SP | LAD,13,SP
+RES,Sean Manaea SP | NYM ,5,SP
+2B,Cesar Hernandez 2B | ,1,"2B,DH"
+RES,Nathan Eovaldi SP | TEX ,3,SP
+RES,Matt Shoemaker SP | ,1,SP
+RP,Nick Neidert SP | CHC,1,RP
+RES,Mark Canha OF | TEX ,4,"DH,OF"
+RES,Ian Kennedy RP | TEX,1,RP
+RES,Andrew McCutchen DH | TEX ,3,"DH,OF"
+RES,Didi Gregorius SS | ,5,"DH,SS"
+RES,Jake Odorizzi SP | TB,1,SP
+RES,Kevin Pillar OF | TEX,1,"DH,OF"
+RES,Mark Melancon RP | ARI,2,RP
+RES,John Means SP | KC ,2,SP
+RES,Eduardo Escobar 3B | TOR,2,"3B,DH"
+Cardinal and Gold
+Pos,Player,Salary,Elig,
+SP,Zack Greinke SP | KC,36,SP
+SP,Patrick Corbin SP | TEX,26,SP
+SP,Zack Wheeler SP | PHI ,29,SP
+SP,Lance Lynn SP | ,24,SP
+1B,Freddie Freeman 1B | LAD,65,"1B,DH"
+2B,"Jose Altuve 2B,OF | HOU",29,"2B,DH"
+SS,"Carlos Correa 3B,SS | HOU ",17,"DH,SS"
+3B,Kyle Seager 3B | ,8,"3B,DH"
+OF,Michael Brantley LF | ,8,"DH,OF"
+RES,Kolten Wong 2B | BAL,1,"2B,DH"
+RP,Nick Pivetta SP | SD,4,RP
+RP,Diego Castillo RP | COL,1,RP
+OF,Jarred Kelenic OF | CHW,2,"DH,OF"
+C,Buster Posey C | ,3,"C,DH"
+OF,Brandon Nimmo OF | TEX,2,"DH,OF"
+RES,Myles Straw OF | TOR,2,"DH,OF"
+RES,Manuel Margot OF | DET,1,"DH,OF"
+RES,Kevin Kiermaier OF | LAD,2,"DH,OF"
+RES,Trevor Rogers SP | BAL ,1,SP
+RES,David Fletcher 2B | ATL,2,"2B,DH,SS"
+RES,Marco Gonzales SP | SD,2,SP
+RES,Carlos Martinez SP | ,3,SP
+RES,Jesus Aguilar 1B | ,2,"1B,DH"
+RES,Elieser Hernandez RP | ATL,1,SP
+Lou Brown's Kids
+Pos,Player,Salary,Elig,
+OF,Christian Yelich OF | MIL,54,"DH,OF"
+C,Will Smith C | LAD,11,"C,DH"
+SP,Corey Kluber SP | ,36,SP
+1B,Eric Hosmer 1B | ,9,"1B,DH"
+SS,Xander Bogaerts SS | SD,38,"DH,SS"
+DH,Paul Goldschmidt 1B | NYY,31,"1B,DH"
+3B,Kris Bryant DH | COL ,23,"3B,DH"
+RP,Ryan Pressly RP | CHC,7,RP
+SP,Domingo German RP | PIT,17,SP
+2B,Tommy La Stella DH | ,4,"2B,DH"
+OF,Teoscar Hernandez OF | LAD,5,"DH,OF"
+RP,Emilio Pagan RP | CIN,1,RP
+RES,J.D. Martinez DH | NYM,11,DH
+RES,Tarik Skubal SP | DET ,3,SP
+RES,Andrew Vaughn 1B | MIL,3,"1B,DH"
+OF,Raimel Tapia OF | TB,2,"DH,OF"
+RES,Brad Hand RP | ATL,17,RP
+RES,Aaron Hicks OF | LAA,8,"DH,OF"
+RES,Eddie Rosario DH | MIL,13,"DH,OF"
+RES,Jared Walsh 1B | CHW,4,"1B,DH"
+RES,"Tommy Edman 2B,OF | LAD ",9,"3B,DH,OF"
+RES,Mike Minor SP | ,1,SP
+RES,Nick Senzel 3B | LAD,2,"DH,OF"
+RES,Omar Narvaez C | HOU,1,"C,DH"
+RES,Brent Suter RP | LAA,1,RP
+The Mike Uhlenkamp Experience
+Pos,Player,Salary,Elig,
+RES,Trea Turner SS | PHI ,57,"DH,SS"
+SP,Jack Flaherty SP | DET,39,SP
+C,J.T. Realmuto C | PHI ,25,"C,DH"
+SP,Jose Berrios SP | TOR ,33,SP
+3B,Max Muncy 3B | LAD,9,"1B,3B,DH"
+SP,Joe Musgrove SP | SD ,18,SP
+OF,Mike Yastrzemski OF | ATL,6,"DH,OF"
+2B,"Gavin Lux 2B,OF | TB ",6,"2B,DH"
+OF,Michael Conforto OF | CHC ,11,"DH,OF"
+RES,Clint Frazier OF | CHW,1,"DH,OF"
+RP,Kenley Jansen RP | DET,11,RP
+RES,Ryan Mountcastle 1B | BAL ,8,"DH,OF"
+RP,Hector Neris RP | KC,1,RP
+SP,Sixto Sanchez SP | MIA,5,SP
+RES,Frankie Montas SP | NYM ,3,SP
+RES,Dylan Carlson OF | CHC ,5,"DH,OF"
+RES,Framber Valdez SP | DET ,3,SP
+RES,Brendan Rodgers 2B | BOS ,1,"2B,DH"
+RES,Carlos Carrasco SP | ATL ,4,SP
+RES,C.J. Cron 1B | BOS,3,"1B,DH"
+RES,Carlos Rodon SP | NYY ,1,SP
+RES,Julio Rodriguez OF | SEA,3,"DH,OF"
+RES,Dominic Smith 1B | ATL,3,"1B,DH,OF"
+Swing and a Miss 2020
+Pos,Player,Salary,Elig,
+SP,Walker Buehler SP | SD ,53,SP
+DH,Nolan Arenado 3B | ARI,42,"3B,DH"
+RES,Randy Arozarena OF | SEA ,32,"DH,OF"
+SP,Aaron Nola SP | PHI,45,SP
+OF,George Springer OF | TOR ,31,"DH,OF"
+C,Yasmani Grandal C | PIT,9,"C,DH"
+RES,Giancarlo Stanton OF | NYY ,15,DH
+SP,Lance McCullers SP | HOU,15,SP
+OF,Lourdes Gurriel OF | ARI ,10,"DH,OF"
+OF,Trent Grisham OF | NYY ,5,"DH,OF"
+RES,Austin Nola C | COL,3,"C,DH"
+SP,Andrew Heaney SP | LAD,5,SP
+RP,Drew Pomeranz RP | LAA ,3,RP
+2B,Nick Madrigal 3B | LAA ,10,"2B,DH"
+RES,Nick Solak 1B | SD,3,"2B,DH,OF"
+RP,James Karinchak RP | ATL ,3,RP
+RES,Jon Lester SP | ,2,SP
+RES,Dylan Cease SP | TOR,1,SP
+RES,A.J. Puk RP | ARI ,5,RP
+RES,Caleb Smith RP | ,1,SP
+RES,Luis Campusano DH | SD,1,"C,DH"
+RES,Michael Kopech RP | LAD ,1,SP
+RES,Bobby Witt SS | KC,1,"DH,SS"
+RES,Nate Pearson RP | HOU ,1,SP
+Ireland
+Pos,Player,Salary,Elig,
+SP,Jacob deGrom SP | TEX,65,SP
+3B,Alex Bregman 3B | CHC,47,"3B,DH"
+OF,Ronald Acuna Jr. OF | ATL ,69,"DH,OF"
+OF,Aaron Judge OF | NYY,41,"DH,OF"
+SS,Gleyber Torres 2B | DET,16,"DH,SS"
+DH,Nelson Cruz DH | ,8,DH
+RP,Alex Colome RP | CHW,2,RP
+SP,Mike Soroka SP | ARI ,8,SP
+C,Mitch Garver C | SEA,4,"C,DH"
+1B,Hunter Dozier 3B | LAA,4,"1B,DH,OF"
+SP,Jordan Montgomery SP | TEX ,3,SP
+SP,Brad Keller RP | PHI,2,SP
+OF,Kyle Schwarber DH | PHI,4,"DH,OF"
+RES,Adam Eaton RF | ,2,"DH,OF"
+RES,Chris Taylor OF | LAA,1,"DH,OF,SS"
+RES,Jake Arrieta SP | ,1,SP
+RES,Mitch Haniger OF | SEA,2,"DH,OF"
+RES,"Dylan Moore 1B,2B,3B,OF | PHI",4,"DH,OF"
+RES,Tom Murphy C | SF ,1,"C,DH"
+RES,Jorge Polanco 2B | NYM ,1,"DH,SS"
+RES,Jeimer Candelario 3B | LAA ,1,"1B,DH"
+RES,Matt Moore RP | BOS,1,SP
+RES,Jorge Alcala RP | TOR,1,RP
+RES,"Adam Frazier 2B,OF | LAA ",1,"2B,DH"
+RES,Austin Hays OF | CHW,1,"DH,OF"
+Sarre
+Pos,Player,Salary,Elig,
+SP,Gerrit Cole SP | NYY ,68,SP
+SP,Max Scherzer SP | TOR ,60,SP
+DH,Corey Seager SS | TEX,49,"DH,SS"
+OF,Alex Verdugo OF | SD,20,"DH,OF"
+1B,Jose Abreu 1B | HOU,22,"1B,DH"
+RP,Logan Allen RP | ARI,10,RP
+SP,Adam Wainwright SP | ,10,SP
+3B,Justin Turner 1B | CHC,17,"3B,DH"
+OF,Max Kepler OF | PHI ,11,"DH,OF"
+RES,"Javier Baez 3B,SS,OF | DET ",10,"DH,SS"
+RES,Gio Urshela 3B | MIN,5,"3B,DH"
+C,Christian Vazquez C | HOU ,3,"C,DH"
+SP,Tyler Mahle SP | SF ,8,SP
+RP,Austin Gomber SP | TEX ,1,RP
+RES,Will Smith RP | KC,8,RP
+RES,Yuli Gurriel DH | SD,2,"1B,DH"
+OF,Kole Calhoun 1B | CLE,1,"DH,OF"
+RES,Pedro Severino C | ,1,"C,DH"
+RES,Kwang Hyun Kim SP | ,1,SP
+RES,Jon Gray RP | TEX ,1,SP
+RES,Luis Arraez 1B | SF,1,"2B,DH"
+RES,Archie Bradley RP | ,1,RP
+RES,Andrelton Simmons SS | ,1,"DH,SS"
+RES,J.P. Crawford SS | SEA ,1,"DH,SS"
+RES,Bryan Reynolds OF | PIT,1,"DH,OF"
+The Indians
+Pos,Player,Salary,Elig,
+SS,Trevor Story SS | BOS ,37,"DH,SS"
+2B,Whit Merrifield 2B | ATL,33,"2B,DH,OF"
+C,Travis d'Arnaud C | LAA,5,"C,DH"
+DH,Ozzie Albies 2B | ATL ,32,"2B,DH"
+SP,Aaron Civale SP | ATH,9,SP
+SP,German Marquez SP | SD,12,SP
+1B,Matt Olson 1B | ATL ,14,"1B,DH"
+SP,Chris Sale SP | ATL ,3,SP
+RES,Sonny Gray SP | BOS,12,SP
+OF,Robbie Grossman OF | KC,3,"DH,OF"
+3B,Eugenio Suarez 3B | CIN,11,"3B,DH"
+OF,"Jeff McNeil 2B,OF | ATH",7,"DH,OF"
+RP,Edwin Diaz RP | LAD ,11,RP
+RES,Rhys Hoskins 1B | CLE ,8,"1B,DH"
+OF,Nick Castellanos OF | SD ,17,"DH,OF"
+RES,Yoan Moncada 3B | LAA,7,"3B,DH"
+RES,Bobby Dalbec 1B | CHW,3,"1B,DH"
+RES,David Peralta OF | SD,3,"DH,OF"
+RES,Starlin Castro 3B | ,2,"2B,DH"
+RES,Zach Davies SP | WAS,3,SP
+RES,Mike Clevinger RP | PIT,3,SP
+RES,Martin Maldonado C | SD,1,"C,DH"
+RES,Justin Upton DH | ,1,"DH,OF"
+RES,Leody Taveras OF | BAL,1,"DH,OF"
+RES,Richard Rodriguez RP | ,2,RP

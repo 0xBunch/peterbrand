@@ -260,31 +260,85 @@ def import_draft_history(filepath: Path, season: int):
     conn.close()
 
 
+def import_3ya_stats(filepath: Path, position_hint: str, is_pitcher: bool = False):
+    """Import 3-year average stats and populate player_history."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    with open(filepath, 'r') as f:
+        next(f)  # Skip header
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            player_str = row.get('Player', '')
+            if not player_str or player_str.strip() == '':
+                continue
+
+            name, positions, team = parse_player_info(player_str)
+            if not positions:
+                positions = [position_hint]
+
+            player_id = get_player_id(name, team, conn)
+            fpts_3ya = safe_float(row.get('FPTS', ''))
+
+            # Store 3YA in player_history
+            cursor.execute("""
+                INSERT OR REPLACE INTO player_history (player_id, fpts_3ya)
+                VALUES (?, ?)
+            """, (player_id, fpts_3ya))
+
+            # Store current owner info in opponent_rosters if not waiver
+            avail = row.get('Avail', 'W').strip()
+            if avail and avail != 'W':
+                cursor.execute("""
+                    INSERT OR REPLACE INTO opponent_rosters
+                    (team, player_id, season, position_slot)
+                    VALUES (?, ?, 2025, ?)
+                """, (avail, player_id, position_hint))
+
+    conn.commit()
+    conn.close()
+
+
+def link_draft_history_to_players():
+    """Link draft history records to player IDs for calibration."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, player_name FROM draft_history WHERE player_id IS NULL")
+    records = cursor.fetchall()
+
+    for record_id, player_name in records:
+        cursor.execute("SELECT id FROM players WHERE name LIKE ?", (f"%{player_name}%",))
+        match = cursor.fetchone()
+        if match:
+            cursor.execute("UPDATE draft_history SET player_id = ? WHERE id = ?", (match[0], record_id))
+
+    conn.commit()
+    conn.close()
+
+
 def import_all_data():
     """Import all available data."""
     print("Initializing database...")
     init_db()
 
-    # Import 2026 projections
-    print("\nImporting 2026 projections...")
     hitter_positions = ['c', '1b', '2b', '3b', 'ss', 'of', 'dh']
     pitcher_positions = ['sp', 'rp']
 
+    # Import 2026 projections
+    print("\nImporting 2026 projections...")
     for pos in hitter_positions:
         filepath = PROJECTIONS_DIR / f"projections_{pos}_2026.csv"
         if filepath.exists():
             print(f"  Importing {pos.upper()} projections...")
             import_hitter_projections(filepath, 2026, 'projection', pos.upper())
-        else:
-            print(f"  Warning: {filepath} not found")
 
     for pos in pitcher_positions:
         filepath = PROJECTIONS_DIR / f"projections_{pos}_2026.csv"
         if filepath.exists():
             print(f"  Importing {pos.upper()} projections...")
             import_pitcher_projections(filepath, 2026, 'projection', pos.upper())
-        else:
-            print(f"  Warning: {filepath} not found")
 
     # Import 2025 stats
     print("\nImporting 2025 stats...")
@@ -300,6 +354,20 @@ def import_all_data():
             print(f"  Importing {pos.upper()} 2025 stats...")
             import_pitcher_projections(filepath, 2025, 'actual', pos.upper())
 
+    # Import 3-year average stats
+    print("\nImporting 3-year average stats...")
+    for pos in hitter_positions:
+        filepath = STATS_3YA_DIR / f"stats_{pos}_23-25.csv"
+        if filepath.exists():
+            print(f"  Importing {pos.upper()} 3YA stats...")
+            import_3ya_stats(filepath, pos.upper(), is_pitcher=False)
+
+    for pos in pitcher_positions:
+        filepath = STATS_3YA_DIR / f"stats_{pos}_23-25.csv"
+        if filepath.exists():
+            print(f"  Importing {pos.upper()} 3YA stats...")
+            import_3ya_stats(filepath, pos.upper(), is_pitcher=True)
+
     # Import draft history
     print("\nImporting draft history...")
     for year in [2021, 2022, 2023, 2024, 2025]:
@@ -307,6 +375,10 @@ def import_all_data():
         if filepath.exists():
             print(f"  Importing {year} draft...")
             import_draft_history(filepath, year)
+
+    # Link draft history to player IDs
+    print("\nLinking draft history to players...")
+    link_draft_history_to_players()
 
     # Count imported data
     conn = get_connection()
@@ -317,12 +389,18 @@ def import_all_data():
     proj_count = cursor.fetchone()[0]
     cursor.execute("SELECT COUNT(*) FROM draft_history")
     draft_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM player_history WHERE fpts_3ya IS NOT NULL")
+    history_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM opponent_rosters")
+    roster_count = cursor.fetchone()[0]
     conn.close()
 
     print(f"\nImport complete!")
     print(f"  Players: {player_count}")
     print(f"  2026 Projections: {proj_count}")
     print(f"  Draft History Records: {draft_count}")
+    print(f"  Players with 3YA History: {history_count}")
+    print(f"  Opponent Roster Records: {roster_count}")
 
 
 if __name__ == "__main__":

@@ -17,8 +17,8 @@ db/*.db
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# Streamlit (allow config.toml, ignore secrets)
+.streamlit/secrets.toml
 
 # Local data (keep structure, ignore large files)
 *.xlsx

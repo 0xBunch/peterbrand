@@ -10,9 +10,7 @@ from data.database import get_connection
 from app.config import BUDGET_STRATEGY, POSITIONAL_SCARCITY
 from app.theme import inject_theme, render_sidebar_brand
 
-st.set_page_config(page_title="BATCAVE - Tiers", page_icon="📋", layout="wide")
-
-# Inject unified theme
+# Inject unified theme (page config handled by main.py navigation)
 inject_theme()
 
 

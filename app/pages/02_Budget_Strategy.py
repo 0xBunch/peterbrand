@@ -11,9 +11,7 @@ from app.config import (
     BUDGET_STRATEGY, AVAILABLE_BUDGET, FAAB_RESERVE_TARGET, KEEPERS
 )
 
-st.set_page_config(page_title="BATCAVE - Budget", page_icon="💵", layout="wide")
-
-# Inject unified theme
+# Inject unified theme (page config handled by main.py navigation)
 inject_theme()
 
 

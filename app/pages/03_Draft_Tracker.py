@@ -10,9 +10,7 @@ from data.database import get_connection, record_draft_pick, get_team_status, in
 from app.config import OPPONENTS, AVAILABLE_BUDGET, KEEPERS
 from app.theme import inject_theme, render_sidebar_brand
 
-st.set_page_config(page_title="BATCAVE - Tracker", page_icon="🎯", layout="wide")
-
-# Inject unified theme
+# Inject unified theme (page config handled by main.py navigation)
 inject_theme()
 
 

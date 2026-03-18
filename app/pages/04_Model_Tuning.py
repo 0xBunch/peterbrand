@@ -10,9 +10,7 @@ from model.ab_score import ABScoreCalculator, calculate_auction_value, calculate
 from app.config import DEFAULT_WEIGHTS
 from app.theme import inject_theme, render_sidebar_brand
 
-st.set_page_config(page_title="BATCAVE - Tuning", page_icon="⚙️", layout="wide")
-
-# Inject unified theme
+# Inject unified theme (page config handled by main.py navigation)
 inject_theme()
 
 

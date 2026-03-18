@@ -6,7 +6,7 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.theme import inject_theme, render_batcave_header, render_sidebar_brand
+from app.theme import inject_theme, render_stats_bar, render_sidebar_brand
 from app.config import (
     KEEPERS, BUDGET_STRATEGY, AVAILABLE_BUDGET, SALARY_CAP,
     KEEPER_TOTAL, OPPONENTS, ROSTER_SLOTS, NUM_TEAMS
@@ -259,89 +259,99 @@ def render_player_table():
         reverse=True
     )
 
-    # Table header
-    st.markdown("""
-    <div class="player-row header">
-        <div>PLAYER</div>
-        <div>POS</div>
-        <div>FPTS</div>
-        <div>PB</div>
-        <div>TIER</div>
-        <div>BID</div>
-        <div>MAX</div>
-        <div>GAP</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Column widths - must match for header and data rows
+    col_widths = [2.5, 0.5, 0.6, 0.5, 0.5, 1.2, 0.6, 0.5, 0.4, 0.4, 0.4]
 
-    # Create a container for the table with max height
-    table_container = st.container()
+    # Table header using same column structure
+    hdr = st.columns(col_widths)
+    hdr[0].markdown("**PLAYER**")
+    hdr[1].markdown("**POS**")
+    hdr[2].markdown("**FPTS**")
+    hdr[3].markdown("**PB**")
+    hdr[4].markdown("**TIER**")
+    hdr[5].markdown("**BID RANGE**")
+    hdr[6].markdown("**MAX**")
+    hdr[7].markdown("**GAP**")
+    hdr[8].markdown("")  # View
+    hdr[9].markdown("")  # Draft
+    hdr[10].markdown("")  # Queue
 
-    with table_container:
-        # Display players
-        for i, player in enumerate(players[:50]):  # Limit to top 50 for performance
-            name = player.get('name', 'Unknown')
-            team = player.get('mlb_team', '???')
-            positions = player.get('positions', '-')
-            fpts = player.get('fpts') or 0
-            pb_score = player.get('pb_score') or 0
-            tier = player.get('tier') or 4
-            bid_floor = player.get('bid_floor') or 1
-            bid_target = player.get('bid_target') or 1
-            bid_ceiling = player.get('bid_ceiling') or 1
-            value_gap = player.get('value_gap') or 0
-            player_id = player.get('id')
+    st.markdown('<div style="border-bottom: 2px solid #30363d; margin-bottom: 4px;"></div>', unsafe_allow_html=True)
 
-            # Calculate max_bid if not in data
-            max_bid = player.get('max_bid') or min(int(bid_ceiling * 1.25), 50)
+    # Display players
+    for i, player in enumerate(players[:50]):  # Limit to top 50 for performance
+        name = player.get('name', 'Unknown')
+        team = player.get('mlb_team', '???')
+        positions = player.get('positions', '-')
+        fpts = player.get('fpts') or 0
+        pb_score = player.get('pb_score') or 0
+        tier = player.get('tier') or 4
+        bid_floor = player.get('bid_floor') or 1
+        bid_target = player.get('bid_target') or 1
+        bid_ceiling = player.get('bid_ceiling') or 1
+        value_gap = player.get('value_gap') or 0
+        player_id = player.get('id')
 
-            # Value gap color
-            if value_gap > 5:
-                gap_class = "value-positive"
-                gap_display = f"+{value_gap:.0f}"
-            elif value_gap < -5:
-                gap_class = "value-negative"
-                gap_display = f"{value_gap:.0f}"
-            else:
-                gap_class = "value-neutral"
-                gap_display = f"{value_gap:.0f}" if value_gap else "-"
+        # Calculate max_bid if not in data
+        max_bid = player.get('max_bid') or min(int(bid_ceiling * 1.25), 50)
 
-            # Tier badge
-            tier_class = f"tier-{tier}" if tier in [1, 2, 3, 4] else "tier-4"
+        # Value gap color
+        if value_gap > 5:
+            gap_color = "#3fb950"
+            gap_display = f"+{value_gap:.0f}"
+        elif value_gap < -5:
+            gap_color = "#f85149"
+            gap_display = f"{value_gap:.0f}"
+        else:
+            gap_color = "#8b949e"
+            gap_display = f"{value_gap:.0f}" if value_gap else "-"
 
-            # Create unique key for each player - 4 columns: data, view, draft, queue
-            col1, col2, col3, col4 = st.columns([8, 1, 1, 1])
+        # Tier badge colors
+        tier_colors = {1: "#c9a227", 2: "#8b949e", 3: "#d29922", 4: "#30363d"}
+        tier_bg = tier_colors.get(tier, "#30363d")
+        tier_fg = "#0d1117" if tier in [1, 2, 3] else "#c9d1d9"
 
-            with col1:
-                st.markdown(f"""
-                <div class="player-row" id="player-{player_id}">
-                    <div>
-                        <span class="player-name">{name}</span>
-                        <span class="player-team">{team}</span>
-                    </div>
-                    <div>{positions}</div>
-                    <div>{fpts:.0f}</div>
-                    <div>{pb_score:.0f}</div>
-                    <div><span class="tier-badge {tier_class}">T{tier}</span></div>
-                    <div>${bid_floor}-{bid_target}-{bid_ceiling}</div>
-                    <div>${max_bid}</div>
-                    <div class="{gap_class}">{gap_display}</div>
-                </div>
-                """, unsafe_allow_html=True)
+        # Create row with matching columns
+        cols = st.columns(col_widths)
 
-            with col2:
-                if st.button("👁", key=f"view_{player_id}", help=f"View {name} details"):
-                    st.session_state.selected_player = player_id
-                    st.session_state.selected_player_data = player
+        with cols[0]:
+            st.markdown(f"**{name}** <span style='color:#6b7280;font-size:0.8em;'>{team}</span>", unsafe_allow_html=True)
 
-            with col3:
-                if st.button("D", key=f"draft_{player_id}", help=f"Draft {name}"):
-                    st.session_state.drafting_player = player
-                    st.session_state.show_draft_modal = True
+        with cols[1]:
+            st.markdown(f"<span style='color:#8b949e;'>{positions}</span>", unsafe_allow_html=True)
 
-            with col4:
-                if st.button("+Q", key=f"queue_{player_id}", help=f"Add {name} to queue"):
-                    add_to_queue(player_id, max_bid=max_bid)
-                    st.rerun()
+        with cols[2]:
+            st.markdown(f"{fpts:.0f}")
+
+        with cols[3]:
+            st.markdown(f"{pb_score:.0f}")
+
+        with cols[4]:
+            st.markdown(f"<span style='background:{tier_bg};color:{tier_fg};padding:2px 6px;font-size:0.75em;font-weight:600;'>T{tier}</span>", unsafe_allow_html=True)
+
+        with cols[5]:
+            st.markdown(f"${bid_floor}-{bid_target}-{bid_ceiling}")
+
+        with cols[6]:
+            st.markdown(f"${max_bid}")
+
+        with cols[7]:
+            st.markdown(f"<span style='color:{gap_color};font-weight:600;'>{gap_display}</span>", unsafe_allow_html=True)
+
+        with cols[8]:
+            if st.button("👁", key=f"view_{player_id}", help=f"View {name}"):
+                st.session_state.selected_player = player_id
+                st.session_state.selected_player_data = player
+
+        with cols[9]:
+            if st.button("D", key=f"draft_{player_id}", help=f"Draft {name}"):
+                st.session_state.drafting_player = player
+                st.session_state.show_draft_modal = True
+
+        with cols[10]:
+            if st.button("+Q", key=f"queue_{player_id}", help=f"Queue {name}"):
+                add_to_queue(player_id, max_bid=max_bid)
+                st.rerun()
 
 
 def render_draft_modal():
@@ -526,7 +536,7 @@ def main():
     spent = get_my_spent()
     current_round = calculate_round()
     pick_count = get_pick_count()
-    render_batcave_header(
+    render_stats_bar(
         budget=SALARY_CAP,
         spent=spent,
         round_num=current_round,

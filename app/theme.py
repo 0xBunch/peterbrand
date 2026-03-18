@@ -376,13 +376,12 @@ CUSTOM_CSS = """
     /* === PLAYER TABLE === */
     .player-row {
         display: grid;
-        grid-template-columns: 2fr 0.5fr 0.7fr 0.7fr 0.7fr 0.6fr 0.8fr 0.6fr;
-        gap: 4px;
-        padding: 6px 8px;
+        grid-template-columns: 2.5fr 0.6fr 0.6fr 0.5fr 0.5fr 1fr 0.6fr 0.6fr;
+        gap: 8px;
+        padding: 8px 12px;
         border-bottom: 1px solid var(--border);
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         align-items: center;
-        cursor: pointer;
         transition: background 0.1s;
     }
 
@@ -393,13 +392,14 @@ CUSTOM_CSS = """
     .player-row.header {
         background: var(--bg-dark);
         color: var(--text-dim);
-        font-size: 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        cursor: default;
         position: sticky;
         top: 0;
         z-index: 10;
+        border-bottom: 2px solid var(--border);
     }
 
     .player-name {
@@ -835,8 +835,8 @@ def inject_theme():
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
-def render_batcave_header(budget: int, spent: int, round_num: int, pick_count: int, inflation: float = 0):
-    """Render the BATCAVE header bar with stats."""
+def render_stats_bar(budget: int, spent: int, round_num: int, pick_count: int, inflation: float = 0):
+    """Render the stats bar (BATCAVE branding is in sidebar only)."""
     remaining = budget - spent
 
     # Inflation display
@@ -849,9 +849,6 @@ def render_batcave_header(budget: int, spent: int, round_num: int, pick_count: i
 
     st.markdown(f"""
     <div class="batcave-header">
-        <div>
-            <span class="batcave-brand">BATCAVE<span class="subtitle">DRAFT COMMAND CENTER</span></span>
-        </div>
         <div class="batcave-stats">
             <div class="batcave-stat">
                 <span class="batcave-stat-label">Budget</span>

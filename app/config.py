@@ -90,15 +90,15 @@ TEAM_QUALITY = {
 
 # Budget allocation strategy
 BUDGET_STRATEGY = {
-    "C": {"min": 3, "max": 8, "target": 5, "strategy": "Wait for value, catcher runs shallow"},
-    "1B": {"min": 15, "max": 25, "target": 20, "strategy": "Mid-tier, don't overpay for ceiling"},
-    "2B": {"min": 0, "max": 0, "target": 0, "strategy": "LOCKED (Hoerner)"},
-    "3B": {"min": 20, "max": 35, "target": 28, "strategy": "Scarcest position, pay up if needed"},
-    "SS": {"min": 0, "max": 0, "target": 0, "strategy": "LOCKED (Abrams)"},
-    "OF": {"min": 55, "max": 75, "target": 65, "strategy": "1 elite ($40-50) + 2 value ($5-15 each)"},
-    "DH": {"min": 3, "max": 10, "target": 6, "strategy": "Deep position, find value late"},
-    "SP": {"min": 60, "max": 80, "target": 70, "strategy": "Spread across tiers, IL stashes"},
-    "RP": {"min": 5, "max": 15, "target": 10, "strategy": "Closers volatile, target value"},
+    "C": {"min": 3, "max": 8, "target": 5, "needed": 1, "strategy": "Wait for value, catcher runs shallow"},
+    "1B": {"min": 15, "max": 25, "target": 20, "needed": 1, "strategy": "Mid-tier, don't overpay for ceiling"},
+    "2B": {"min": 0, "max": 0, "target": 0, "needed": 0, "strategy": "LOCKED (Hoerner)"},
+    "3B": {"min": 20, "max": 35, "target": 28, "needed": 1, "strategy": "Scarcest position, pay up if needed"},
+    "SS": {"min": 0, "max": 0, "target": 0, "needed": 0, "strategy": "LOCKED (Abrams)"},
+    "OF": {"min": 55, "max": 75, "target": 65, "needed": 3, "strategy": "1 elite ($40-50) + 2 value ($5-15 each)"},
+    "DH": {"min": 3, "max": 10, "target": 6, "needed": 1, "strategy": "Deep position, find value late"},
+    "SP": {"min": 60, "max": 80, "target": 70, "needed": 4, "strategy": "Spread across tiers, IL stashes"},
+    "RP": {"min": 5, "max": 15, "target": 10, "needed": 2, "strategy": "Closers volatile, target value"},
 }
 
 # Opponent tendencies

@@ -67,16 +67,7 @@ def render_player_card(player, position: str, is_pitcher: bool = False):
     ab_score = player[14]
     is_drafted = player[20] is not None
 
-    # Tier colors
-    tier_colors = {1: '#ffd700', 2: '#c0c0c0', 3: '#cd7f32', 4: '#555'}
-    tier_names = {1: 'Elite', 2: 'Solid', 3: 'Value', 4: 'Depth'}
-
-    if is_drafted:
-        bg_color = '#3d3d3d'
-        opacity = '0.6'
-    else:
-        bg_color = '#1a1a2e'
-        opacity = '1'
+    tier_names = {1: '🥇', 2: '🥈', 3: '🥉', 4: '⚪'}
 
     # Build stats string
     if is_pitcher:
@@ -85,51 +76,27 @@ def render_player_card(player, position: str, is_pitcher: bool = False):
         w = player[9] or 0
         sv = player[10] or 0
         k = player[11] or 0
-        stats_str = f"W:{w} | SV:{sv} | K:{k} | ERA:{era:.2f} | IP:{ip:.0f}"
+        stats_str = f"W:{w} SV:{sv} K:{k} ERA:{era:.2f}"
     else:
         hr = player[5] or 0
         rbi = player[6] or 0
         sb = player[7] or 0
         avg = player[8] or 0
-        stats_str = f"HR:{hr} | RBI:{rbi} | SB:{sb} | AVG:{avg:.3f}"
+        stats_str = f"HR:{hr} RBI:{rbi} SB:{sb} AVG:{avg:.3f}"
 
-    st.markdown(f"""
-    <div style="
-        background: {bg_color};
-        border-radius: 8px;
-        padding: 12px;
-        margin: 6px 0;
-        border-left: 4px solid {tier_colors.get(tier, '#555')};
-        opacity: {opacity};
-    ">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <strong style="font-size: 1.1em;">{name}</strong>
-                <span style="color: #888; margin-left: 8px;">{team} | {positions}</span>
-                {'<span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; margin-left: 8px;">DRAFTED</span>' if is_drafted else ''}
-            </div>
-            <div style="text-align: right;">
-                <span style="background: {tier_colors.get(tier, '#555')}; color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8em;">
-                    T{tier} {tier_names.get(tier, '')}
-                </span>
-            </div>
-        </div>
-        <div style="margin-top: 8px; display: flex; justify-content: space-between;">
-            <div>
-                <span style="color: #4CAF50; font-weight: bold;">{fpts:.0f} FPTS</span>
-                <span style="color: #888; margin-left: 12px;">{stats_str}</span>
-            </div>
-            <div>
-                <span style="color: #888;">AB: {ab_score:.0f}</span>
-                <span style="margin-left: 12px;">
-                    💰 <span style="color: #f39c12;">${bid_floor}</span> /
-                    <strong style="color: #27ae60;">${bid_target}</strong> /
-                    <span style="color: #e74c3c;">${bid_ceiling}</span>
-                </span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Use native Streamlit components
+    with st.container():
+        cols = st.columns([3, 2, 2, 2])
+        with cols[0]:
+            drafted_tag = " ✓" if is_drafted else ""
+            st.markdown(f"**{name}**{drafted_tag}  \n{team} | {positions}")
+        with cols[1]:
+            st.markdown(f"**{fpts:.0f}** FPTS  \n{stats_str}")
+        with cols[2]:
+            st.markdown(f"AB: **{ab_score:.0f}**  \n{tier_names.get(tier, '')} Tier {tier}")
+        with cols[3]:
+            st.markdown(f"**${bid_target}**  \n${bid_floor} - ${bid_ceiling}")
+        st.divider()
 
 
 def main():

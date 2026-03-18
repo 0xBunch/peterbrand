@@ -106,6 +106,25 @@ def init_db():
         )
     """)
 
+    # AB Score (legacy table for backward compatibility with pages)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ab_scores (
+            player_id INTEGER PRIMARY KEY,
+            scarcity REAL,
+            slot REAL,
+            fpts_score REAL,
+            durability REAL,
+            team_quality REAL,
+            multi_pos REAL,
+            value_gap REAL,
+            health REAL,
+            contract REAL,
+            ab_score REAL,
+            auction_value REAL,
+            FOREIGN KEY (player_id) REFERENCES players(id)
+        )
+    """)
+
     # Historical stats (3-year averages for quick lookup)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS player_history (
